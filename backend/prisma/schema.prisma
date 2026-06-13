@@ -1,0 +1,96 @@
+// DeskGuard — core engine schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SeatStatus {
+  FREE
+  OCCUPIED
+  AWAY
+  ABANDONED
+  MAINTENANCE
+}
+
+enum SeatType {
+  CUBICLE
+  OPEN
+  SILENT
+  DISCUSSION
+}
+
+model Seat {
+  id              String        @id @default(cuid())
+  seatNumber      String        @unique
+  status          SeatStatus    @default(FREE)
+  seatType        SeatType
+  zone            String
+  hasChargingPort Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+
+  sessions        Session[]
+  issues          IssueReport[]
+
+  @@index([status])
+}
+
+model Session {
+  id              String    @id @default(cuid())
+  seatId          String
+  seat            Seat      @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  checkedInAt     DateTime  @default(now())
+  awayStartedAt   DateTime?
+  lastConfirmedAt DateTime  @default(now())
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+
+  @@index([seatId])
+  @@index([isActive])
+}
+
+model IssueReport {
+  id          String   @id @default(cuid())
+  seatId      String
+  seat        Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  issueType   String
+  description String?
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+
+  @@index([seatId])
+  @@index([status])
+}
+
+// Students registered by librarian
+model Student {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  studentId  String   @unique
+  department String
+  year       Int
+  phone      String?
+  addedBy    String
+  createdAt  DateTime @default(now())
+
+  @@index([email])
+  @@index([studentId])
+}
+
+// Periodic occupancy snapshot — powers the dashboard trend chart.
+model OccupancySnapshot {
+  id          String   @id @default(cuid())
+  at          DateTime @default(now())
+  total       Int
+  free        Int
+  occupied    Int
+  away        Int
+  abandoned   Int
+  maintenance Int
+
+  @@index([at])
+}
