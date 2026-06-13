@@ -54,7 +54,7 @@ export function MiniLibraryMap() {
       {/* window chrome */}
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <Logo showWordmark={false} />
+          <Logo />
           <div className="leading-tight">
             <p className="text-[13px] font-semibold tracking-tight">
               Main Library · Level 2
