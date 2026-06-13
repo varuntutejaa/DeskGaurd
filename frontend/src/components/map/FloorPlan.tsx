@@ -1,7 +1,5 @@
 import {
   BUILDING,
-  ENTRANCE,
-  RECEPTION,
   ROOMS,
   SEAT_BLOCKS,
   shelvesFor,
@@ -393,49 +391,6 @@ function DiscussionRooms() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Bag lockers
-───────────────────────────────────────────────────────────────────────────── */
-function BagLockers() {
-  return (
-    <g>
-      {ROOMS.filter((r) => r.id.startsWith("locker")).map((room) => {
-        const { rect, id } = room;
-        const cols = 3, rows = 2;
-        const cW = rect.w / cols, cH = rect.h / rows;
-        return (
-          <g key={id}>
-            {/* shadow */}
-            <rect x={rect.x + 1} y={rect.y + 2} width={rect.w} height={rect.h}
-              rx={10} fill="rgba(0,0,0,0.07)" />
-            {/* body */}
-            <rect x={rect.x} y={rect.y} width={rect.w} height={rect.h}
-              rx={10} fill="#EFF3F0" stroke="#C4D4CC" strokeWidth={1.5} />
-            {/* locker cells */}
-            {Array.from({ length: cols }).flatMap((_, c) =>
-              Array.from({ length: rows }).map((_, r) => (
-                <g key={`${c}-${r}`}>
-                  <rect x={rect.x + c * cW + 3.5} y={rect.y + r * cH + 3.5}
-                    width={cW - 7} height={cH - 7}
-                    rx={4} fill="#F8FCF9" stroke="#C0CEC8" strokeWidth={0.9} />
-                  <circle cx={rect.x + c * cW + cW / 2} cy={rect.y + r * cH + cH / 2}
-                    r={2.8} fill="#C0CEC8" opacity={0.55} />
-                </g>
-              ))
-            )}
-            {/* label */}
-            <text x={rect.x + rect.w / 2} y={rect.y + rect.h + 15}
-              textAnchor="middle" fontSize={8} fontWeight={700}
-              fill={C.labelMuted} letterSpacing="0.06em">
-              BAG LOCKERS
-            </text>
-          </g>
-        );
-      })}
-    </g>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
    Window accents
 ───────────────────────────────────────────────────────────────────────────── */
 function WindowAccents() {
@@ -589,118 +544,6 @@ function ZoneSeparators() {
       {/* Vertical: discussion | cubicle right */}
       <line x1={832} y1={572} x2={832} y2={BUILDING.y + BUILDING.h} />
       <line x1={848} y1={572} x2={848} y2={BUILDING.y + BUILDING.h} />
-    </g>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Reception desk — modern curved counter
-───────────────────────────────────────────────────────────────────────────── */
-function ReceptionDesk() {
-  const { x, y, w, h } = RECEPTION;
-  const cx = x + w / 2;
-  const r  = 12;
-
-  return (
-    <g>
-      {/* shadow */}
-      <rect x={x + 2} y={y + 4} width={w} height={h} rx={r} fill="rgba(0,0,0,0.08)" />
-      {/* body */}
-      <rect x={x} y={y} width={w} height={h} rx={r}
-        fill="url(#recep-grad)" stroke={C.recepStroke} strokeWidth={1.75} />
-      {/* counter front accent line */}
-      <line x1={x + r} y1={y + h} x2={x + w - r} y2={y + h}
-        stroke={C.recepStroke} strokeWidth={3} strokeLinecap="round" opacity={0.35} />
-      {/* top highlight */}
-      <rect x={x + r} y={y + 1} width={w - r * 2} height={3} rx={1.5}
-        fill="rgba(255,255,255,0.70)" />
-
-
-      {/* label */}
-      <text x={cx} y={y + h / 2 + 6} textAnchor="middle"
-        fontSize={15} fontWeight={800} letterSpacing="0.10em" fill={C.recepText}
-        style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
-        RECEPTION
-      </text>
-    </g>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Entrance arch
-───────────────────────────────────────────────────────────────────────────── */
-function EntranceArch() {
-  const { x, y, w } = ENTRANCE;
-  const cx = x + w / 2;
-  const halfW = w / 2;
-
-  return (
-    <g>
-      {/* wall gap cover */}
-      <rect x={x} y={y - 6} width={w} height={10} fill={C.floor} />
-
-      {/* double door arc */}
-      <path d={`M ${cx} ${y + 1} A ${halfW} ${halfW} 0 0 0 ${x} ${y + 1}`}
-        fill="rgba(82,184,146,0.10)" stroke={C.glassStroke} strokeWidth={1.25} opacity={0.7} />
-      <path d={`M ${cx} ${y + 1} A ${halfW} ${halfW} 0 0 1 ${x + w} ${y + 1}`}
-        fill="rgba(82,184,146,0.10)" stroke={C.glassStroke} strokeWidth={1.25} opacity={0.7} />
-
-      {/* center door divider */}
-      <line x1={cx} y1={y - 4} x2={cx} y2={y + 4}
-        stroke={C.wall} strokeWidth={2.5} />
-
-      {/* door posts */}
-      <line x1={x}     y1={y - 4} x2={x}     y2={y + 4} stroke={C.wall} strokeWidth={4} />
-      <line x1={x + w} y1={y - 4} x2={x + w} y2={y + 4} stroke={C.wall} strokeWidth={4} />
-
-      {/* entrance label — sits outside the building, centred on the gap */}
-      <text x={cx} y={y - 10} textAnchor="middle"
-        fontSize={11} fontWeight={800} letterSpacing="0.09em" fill={C.labelMuted}
-        style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
-        ▲  MAIN ENTRANCE
-      </text>
-    </g>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   You-are-here pin — with pulse glow
-───────────────────────────────────────────────────────────────────────────── */
-function YouAreHere() {
-  const px = 640, py = 110;
-  const col = "hsl(158 64% 28%)";
-  const glowCol = "hsl(158 64% 42%)";
-
-  return (
-    <g>
-      {/* outer glow rings — pulsing */}
-      <circle cx={px} cy={py} r={8} fill={glowCol} opacity={0}>
-        <animate attributeName="r"       values="8;28;8"         dur="2.6s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.28;0;0.28"    dur="2.6s" repeatCount="indefinite" />
-      </circle>
-      <circle cx={px} cy={py} r={8} fill={glowCol} opacity={0}>
-        <animate attributeName="r"       values="8;18;8"         dur="2.6s" begin="0.4s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.35;0;0.35"    dur="2.6s" begin="0.4s" repeatCount="indefinite" />
-      </circle>
-
-      {/* pin */}
-      <path d={`M ${px} ${py + 10} L ${px - 5} ${py - 1} L ${px + 5} ${py - 1} Z`} fill={col} />
-      {/* pin head with border */}
-      <circle cx={px} cy={py - 7} r={10} fill="#FFFFFF" stroke={col} strokeWidth={2} />
-      <circle cx={px} cy={py - 7} r={6} fill={col} />
-      <circle cx={px} cy={py - 7} r={2.5} fill="#FFFFFF" />
-
-      {/* label bubble */}
-      <g transform={`translate(${px + 15}, ${py - 20})`}>
-        <rect x={0} y={0} width={98} height={24} rx={12}
-          fill="#FFFFFF" stroke={col} strokeWidth={1.25} />
-        <rect x={1} y={1} width={96} height={22} rx={11}
-          fill="rgba(255,255,255,0.4)" />
-        <text x={49} y={16.5} textAnchor="middle"
-          fontSize={11} fontWeight={700} fill={col} letterSpacing="0.02em">
-          You are here
-        </text>
-      </g>
     </g>
   );
 }
