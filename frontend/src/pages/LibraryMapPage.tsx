@@ -1,32 +1,41 @@
 import { AppLayout } from "@/app/AppLayout";
 import { useLibraryData } from "@/hooks/useLibraryData";
-import { TopStatusBar } from "@/components/map/TopStatusBar";
 import { MapControls } from "@/components/map/MapControls";
 import { MapCanvas } from "@/components/map/MapCanvas";
 import { SeatSidebar } from "@/components/map/SeatSidebar";
 import { MobileSeatSheet } from "@/components/map/MobileSeatSheet";
+import { CompactStatusBar } from "@/components/map/CompactStatusBar";
 
 export function LibraryMapPage() {
   useLibraryData();
 
   return (
     <AppLayout>
-      <div className="flex flex-1 flex-col gap-3 overflow-hidden p-3 sm:p-4">
-        <TopStatusBar />
-        <MapControls />
+      <div className="flex flex-1 overflow-hidden">
 
-        <div className="flex flex-1 gap-4 overflow-hidden">
-          <div className="relative flex-1 overflow-hidden">
-            <MapCanvas />
+        {/* ── MAP — fills all remaining space ── */}
+        <div className="relative flex-1 overflow-hidden">
+          <MapCanvas />
+
+          {/* Controls float over the top of the map (no seats in top ~20% of SVG) */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-2 p-3">
+            <div className="pointer-events-auto">
+              <CompactStatusBar />
+            </div>
+            <div className="pointer-events-auto">
+              <MapControls />
+            </div>
           </div>
-
-          {/* desktop rail */}
-          <aside className="hidden w-[340px] shrink-0 rounded-2xl border border-border bg-surface p-4 shadow-xs lg:block">
-            <SeatSidebar />
-          </aside>
         </div>
-      </div>
 
+        {/* ── Desktop sidebar — flush right edge, no extra chrome ── */}
+        <aside className="hidden w-[300px] shrink-0 flex-col overflow-y-auto border-l border-border bg-surface lg:flex">
+          <div className="flex-1 p-4">
+            <SeatSidebar />
+          </div>
+        </aside>
+
+      </div>
       <MobileSeatSheet />
     </AppLayout>
   );

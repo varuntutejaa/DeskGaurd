@@ -45,7 +45,7 @@ export function MapCanvas() {
   return (
     <div
       ref={containerRef}
-      className="relative h-full w-full overflow-hidden rounded-2xl border border-border bg-[#DFE8E2] shadow-xs"
+      className="relative h-full w-full overflow-hidden bg-[#DFE8E2]"
     >
       <svg
         viewBox={`0 0 ${FLOOR.width} ${FLOOR.height}`}
