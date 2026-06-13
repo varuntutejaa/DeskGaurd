@@ -9,84 +9,171 @@ import {
   type RoomDef,
 } from "@/features/seats/geometry";
 
-/* -------------------------------------------------------------------------
-   Palette
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Premium palette
+───────────────────────────────────────────────────────────────────────────── */
 const C = {
-  floor:        "#f5f8f5",
-  floorFoyer:   "#eef3ee",
-  floorShelf:   "#f7f3ea",
-  wall:         "#9ab0a4",
-  wallAccent:   "#7a9a8c",
+  // Exterior
+  exterior:        "#D8E4DE",
+  exteriorShadow:  "#CAD6CC",
 
-  openFill:     "#eef7f1",
-  openStroke:   "#b8d4c4",
-  cubicFill:    "#f0f4f2",
-  cubicStroke:  "#bcccc4",
-  glassFill:    "rgba(198,236,218,0.38)",
-  glassStroke:  "#6dbf9a",
-  lockerFill:   "#edf2ef",
-  lockerStroke: "#b0c4b8",
+  // Building shell
+  floor:           "#F8FAF8",
+  wall:            "#68897C",
+  wallLight:       "#8AA89B",
 
-  tableTop:     "#e3ece6",
-  tableStroke:  "#c4d4ca",
-  chairFill:    "#d8e6dc",
-  chairStroke:  "#a8c2b2",
+  // Zone backgrounds
+  floorFoyer:      "#F2F6F3",
+  floorOpen:       "#EBF6EF",
+  floorShelf:      "#FBF8EE",
+  floorCubicle:    "#EEF1FA",
+  floorDiscussion: "#E8F5EF",
 
-  shelf:        "#c8b896",
-  shelfStroke:  "#a89678",
-  shelfShadow:  "#b0a282",
+  // Zone accent strokes
+  openBorder:      "#BBDCC8",
+  shelfBorder:     "#D8C9A4",
+  cubBorder:       "#BECCDF",
+  discBorder:      "#8ECFB2",
 
-  recepFill:    "hsl(158 38% 90%)",
-  recepStroke:  "hsl(158 52% 52%)",
-  recepText:    "hsl(158 52% 28%)",
+  // Aisles
+  aisle:           "#E4ECE6",
+  aisleLine:       "#CED8D0",
 
-  windowFill:   "hsl(210 55% 88%)",
-  windowFrame:  "hsl(210 30% 60%)",
-  windowGlass:  "hsl(210 60% 94%)",
+  // Furniture
+  tableTop:        "#E2EBE5",
+  tableStroke:     "#C4D2C8",
+  chairFill:       "#F5F9F6",
 
-  labelStrong:  "hsl(160 22% 22%)",
-  labelMed:     "hsl(160 14% 36%)",
-  labelMuted:   "hsl(160 10% 50%)",
-  labelGlass:   "hsl(158 55% 26%)",
-  pillBg:       "rgba(255,255,255,0.88)",
-  pillStroke:   "#b8d4c4",
+  // Books
+  shelf:           "#C9B898",
+  shelfStroke:     "#A89270",
+  shelfEdge:       "#8A7454",
 
-  aisle:        "#e8f0ea",
-  aisleLine:    "#d4e0d8",
+  // Glass rooms
+  glassFill:       "rgba(170,230,205,0.20)",
+  glassStroke:     "#52B892",
+  glassDoor:       "rgba(82,184,146,0.18)",
+  glassGlint:      "rgba(255,255,255,0.60)",
+
+  // Reception
+  recepFill:       "hsl(158 36% 91%)",
+  recepGrad:       "hsl(158 42% 94%)",
+  recepStroke:     "hsl(158 48% 46%)",
+  recepText:       "hsl(158 58% 22%)",
+  recepAccent:     "hsl(158 48% 40%)",
+
+  // Windows
+  windowFill:      "#D2E8F4",
+  windowFrame:     "#6A94B0",
+  windowGlass:     "#E4F2FA",
+
+  // Labels
+  labelStrong:     "#1A2E26",
+  labelMed:        "#3E5A50",
+  labelMuted:      "#7A9288",
+  labelGlass:      "#1A5240",
+  labelCubicle:    "#28385A",
+  labelShelf:      "#52401E",
+  labelFoyer:      "#2A3E36",
 };
 
 const BOOK_COLORS = [
-  "#c46b4a", "#5888a2", "#c8a03c", "#6aaa72",
-  "#9470b8", "#d45a5a", "#5aacac", "#b87840",
+  "#C56B4A","#5888A2","#C8A03C","#6AAA72",
+  "#9470B8","#D45A5A","#5AACAC","#B87840",
+  "#E07060","#4A82C0","#D4A844","#72B67C",
 ];
 
-/* -------------------------------------------------------------------------
-   Pill badge — used for zone labels inside each zone
-   ------------------------------------------------------------------------- */
-function ZonePill({ cx, cy, text, sub, color = C.labelStrong, stroke = C.pillStroke }: {
-  cx: number; cy: number; text: string; sub?: string;
-  color?: string; stroke?: string;
+/* ─────────────────────────────────────────────────────────────────────────────
+   SVG Defs — gradients & filters
+───────────────────────────────────────────────────────────────────────────── */
+function Defs() {
+  return (
+    <defs>
+      {/* Soft drop shadow filter */}
+      <filter id="fp-shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="2" stdDeviation="4" floodOpacity="0.10" />
+      </filter>
+      <filter id="fp-shadow-sm" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="1" stdDeviation="2" floodOpacity="0.08" />
+      </filter>
+
+      {/* Reception desk gradient */}
+      <linearGradient id="recep-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor={C.recepGrad} />
+        <stop offset="100%" stopColor={C.recepFill} />
+      </linearGradient>
+
+      {/* Shelf wood gradient */}
+      <linearGradient id="shelf-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#D4C0A0" />
+        <stop offset="100%" stopColor={C.shelf} />
+      </linearGradient>
+
+      {/* Table top gradient */}
+      <linearGradient id="table-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#ECF2EE" />
+        <stop offset="100%" stopColor={C.tableTop} />
+      </linearGradient>
+
+      {/* Glass room gradient */}
+      <linearGradient id="glass-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="rgba(200,245,225,0.30)" />
+        <stop offset="100%" stopColor="rgba(160,220,195,0.18)" />
+      </linearGradient>
+
+      {/* Open zone gradient */}
+      <linearGradient id="open-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#F0F9F4" />
+        <stop offset="100%" stopColor="#E5F4EA" />
+      </linearGradient>
+
+      {/* Cubicle zone gradient */}
+      <linearGradient id="cub-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#F2F5FC" />
+        <stop offset="100%" stopColor="#E8EDF7" />
+      </linearGradient>
+
+      {/* Pulse animation glow */}
+      <radialGradient id="pulse-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="hsl(158 64% 40%)" stopOpacity="0.5" />
+        <stop offset="100%" stopColor="hsl(158 64% 40%)" stopOpacity="0" />
+      </radialGradient>
+    </defs>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Zone label — large, premium card style
+───────────────────────────────────────────────────────────────────────────── */
+function ZoneLabel({
+  cx, cy, text, sub,
+  titleColor = C.labelStrong,
+  borderColor = "rgba(0,0,0,0.09)",
+  bgColor = "rgba(255,255,255,0.88)",
+}: {
+  cx: number; cy: number;
+  text: string; sub?: string;
+  titleColor?: string; borderColor?: string; bgColor?: string;
 }) {
-  const mainW  = text.length * 5.8 + 20;
-  const totalH = sub ? 30 : 18;
+  const w  = Math.max(text.length * 7.8 + 36, 148);
+  const h  = sub ? 40 : 26;
   return (
     <g>
-      <rect
-        x={cx - mainW / 2} y={cy - totalH / 2}
-        width={mainW} height={totalH}
-        rx={totalH / 2}
-        fill={C.pillBg}
-        stroke={stroke}
-        strokeWidth={1}
-      />
-      <text x={cx} y={cy + (sub ? -3 : 4)} textAnchor="middle"
-        fontSize={9} fontWeight={700} fill={color} letterSpacing="0.05em">
+      {/* shadow */}
+      <rect x={cx - w/2 + 1} y={cy - h/2 + 2} width={w} height={h}
+        rx={9} fill="rgba(0,0,0,0.05)" />
+      {/* card */}
+      <rect x={cx - w/2} y={cy - h/2} width={w} height={h}
+        rx={9} fill={bgColor} stroke={borderColor} strokeWidth={1.25} />
+      {/* zone name */}
+      <text x={cx} y={cy + (sub ? -5 : 6)} textAnchor="middle"
+        fontSize={11.5} fontWeight={800} fill={titleColor} letterSpacing="0.07em"
+        style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
         {text}
       </text>
       {sub && (
-        <text x={cx} y={cy + 10} textAnchor="middle"
-          fontSize={7.5} fontWeight={500} fill={C.labelMuted}>
+        <text x={cx} y={cy + 13} textAnchor="middle"
+          fontSize={8.5} fontWeight={500} fill={C.labelMuted} letterSpacing="0.03em">
           {sub}
         </text>
       )}
@@ -94,33 +181,44 @@ function ZonePill({ cx, cy, text, sub, color = C.labelStrong, stroke = C.pillStr
   );
 }
 
-/* -------------------------------------------------------------------------
-   Bookshelves with coloured book spines
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Bookshelves — clean architectural shelving
+───────────────────────────────────────────────────────────────────────────── */
 function Shelf({ rect, idx }: { rect: { x: number; y: number; w: number; h: number }; idx: number }) {
-  const isH    = rect.w > rect.h;
-  const spine  = isH ? rect.h - 2 : rect.w - 2;
+  const isH   = rect.w > rect.h;
+  const spine  = isH ? rect.h - 3 : rect.w - 3;
   const span   = isH ? rect.w : rect.h;
-  const step   = 11;
+  const step   = 10;
   const count  = Math.max(1, Math.floor(span / step));
   return (
     <g>
+      {/* shadow */}
       <rect x={rect.x + (isH ? 0 : 2)} y={rect.y + (isH ? 2 : 0)}
-        width={rect.w} height={rect.h} rx={2} fill={C.shelfShadow} opacity={0.3} />
+        width={rect.w} height={rect.h} rx={3} fill="rgba(0,0,0,0.09)" />
+      {/* shelf body */}
       <rect x={rect.x} y={rect.y} width={rect.w} height={rect.h}
-        rx={2} fill={C.shelf} stroke={C.shelfStroke} strokeWidth={0.75} />
+        rx={3} fill="url(#shelf-grad)" stroke={C.shelfStroke} strokeWidth={0.75} />
+      {/* book spines */}
       {Array.from({ length: count }).map((_, k) => {
-        const col = BOOK_COLORS[(idx * 7 + k) % BOOK_COLORS.length];
+        const col = BOOK_COLORS[(idx * 5 + k) % BOOK_COLORS.length];
         return isH ? (
-          <rect key={k} x={rect.x + 1 + k * step} y={rect.y + 1}
-            width={Math.min(step - 1, rect.w - 2)} height={spine}
-            rx={1} fill={col} fillOpacity={0.32} />
+          <rect key={k} x={rect.x + 1 + k * step} y={rect.y + 2}
+            width={Math.min(step - 1.5, rect.w - 2)} height={spine}
+            rx={1} fill={col} fillOpacity={0.38} />
         ) : (
-          <rect key={k} x={rect.x + 1} y={rect.y + 1 + k * step}
-            width={spine} height={Math.min(step - 1, rect.h - 2)}
-            rx={1} fill={col} fillOpacity={0.32} />
+          <rect key={k} x={rect.x + 2} y={rect.y + 1 + k * step}
+            width={spine} height={Math.min(step - 1.5, rect.h - 2)}
+            rx={1} fill={col} fillOpacity={0.38} />
         );
       })}
+      {/* front edge highlight */}
+      {isH ? (
+        <line x1={rect.x + 2} y1={rect.y} x2={rect.x + rect.w - 2} y2={rect.y}
+          stroke="#E8D8C0" strokeWidth={0.8} />
+      ) : (
+        <line x1={rect.x} y1={rect.y + 2} x2={rect.x} y2={rect.y + rect.h - 2}
+          stroke="#E8D8C0" strokeWidth={0.8} />
+      )}
     </g>
   );
 }
@@ -131,56 +229,56 @@ function Bookshelves() {
   return <g>{bars.map((b, i) => <Shelf key={i} rect={b} idx={i} />)}</g>;
 }
 
-/* Bookshelves in freed bottom space of cubicle zones */
 function CubicleExtraShelves() {
-  // Left cubicle: 4th row removed → freed y: 784–848, x: 52–412
   const leftShelves = [
-    { x: 60,  y: 800, w: 148, h: 18, idx: 20 },
-    { x: 240, y: 800, w: 148, h: 18, idx: 21 },
+    { x: 62,  y: 802, w: 142, h: 17, idx: 20 },
+    { x: 238, y: 802, w: 142, h: 17, idx: 21 },
   ];
-  // Right cubicle: bottom open space y: 784–848, x: 868–1228
   const rightShelves = [
-    { x: 874, y: 800, w: 148, h: 18, idx: 22 },
-    { x: 1054, y: 800, w: 148, h: 18, idx: 23 },
+    { x: 876, y: 802, w: 142, h: 17, idx: 22 },
+    { x: 1052, y: 802, w: 142, h: 17, idx: 23 },
   ];
   const all = [...leftShelves, ...rightShelves];
   return (
     <g>
-      {/* tinted floor under shelf areas */}
-      <rect x={52}  y={790} width={360} height={58} rx={4} fill={C.floorShelf} opacity={0.7} />
-      <rect x={868} y={790} width={360} height={58} rx={4} fill={C.floorShelf} opacity={0.7} />
+      <rect x={52} y={793} width={358} height={56} rx={6} fill={C.floorShelf} opacity={0.7} />
+      <rect x={870} y={793} width={358} height={56} rx={6} fill={C.floorShelf} opacity={0.7} />
       {all.map(({ x, y, w, h, idx }) => (
         <Shelf key={idx} rect={{ x, y, w, h }} idx={idx} />
       ))}
-      {/* shelf area labels */}
-      <text x={232} y={860} textAnchor="middle" fontSize={7.5} fontWeight={600}
-        fill={C.labelMuted} letterSpacing="0.06em">REFERENCE BOOKS</text>
-      <text x={1048} y={860} textAnchor="middle" fontSize={7.5} fontWeight={600}
-        fill={C.labelMuted} letterSpacing="0.06em">REFERENCE BOOKS</text>
+      <text x={231} y={860} textAnchor="middle" fontSize={7.5} fontWeight={700}
+        fill={C.labelShelf} letterSpacing="0.07em" opacity={0.7}>REFERENCE BOOKS</text>
+      <text x={1049} y={860} textAnchor="middle" fontSize={7.5} fontWeight={700}
+        fill={C.labelShelf} letterSpacing="0.07em" opacity={0.7}>REFERENCE BOOKS</text>
     </g>
   );
 }
 
-/* -------------------------------------------------------------------------
-   Communal tables in open-reading zones
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Communal reading tables
+───────────────────────────────────────────────────────────────────────────── */
 function CommunalTables() {
   return (
     <g>
       {SEAT_BLOCKS.filter((b) => b.type === "open-desk").flatMap((block) =>
         communalTablesForBlock(block).map((t, i) => (
           <g key={`${block.prefix}-t${i}`}>
-            <rect x={t.x + 2} y={t.y + 2} width={t.w} height={t.h}
-              rx={9} fill={C.tableStroke} opacity={0.2} />
+            {/* shadow */}
+            <rect x={t.x + 2} y={t.y + 3} width={t.w} height={t.h}
+              rx={10} fill="rgba(0,0,0,0.07)" />
+            {/* table surface */}
             <rect x={t.x} y={t.y} width={t.w} height={t.h}
-              rx={9} fill={C.tableTop} stroke={C.tableStroke} strokeWidth={1.2} />
-            {/* wood grain */}
-            {Array.from({ length: 4 }).map((_, g) => (
+              rx={10} fill="url(#table-grad)" stroke={C.tableStroke} strokeWidth={1.25} />
+            {/* wood grain lines */}
+            {Array.from({ length: 5 }).map((_, g) => (
               <line key={g}
-                x1={t.x + 22 + g * 38} y1={t.y + 4}
-                x2={t.x + 22 + g * 38} y2={t.y + t.h - 4}
-                stroke={C.tableStroke} strokeWidth={0.6} opacity={0.45} />
+                x1={t.x + 28 + g * 36} y1={t.y + 4}
+                x2={t.x + 28 + g * 36} y2={t.y + t.h - 4}
+                stroke={C.tableStroke} strokeWidth={0.5} opacity={0.4} />
             ))}
+            {/* top highlight */}
+            <rect x={t.x + 8} y={t.y + 1} width={t.w - 16} height={2.5}
+              rx={1.25} fill="#FFFFFF" fillOpacity={0.55} />
           </g>
         ))
       )}
@@ -188,22 +286,21 @@ function CommunalTables() {
   );
 }
 
-/* -------------------------------------------------------------------------
-   Discussion rooms — round tables with 5 chairs
-   ------------------------------------------------------------------------- */
-function RoundTable({ cx, cy, tableR = 30 }: {
-  cx: number; cy: number; tableR?: number;
-}) {
+/* ─────────────────────────────────────────────────────────────────────────────
+   Discussion rooms — premium glass pods
+───────────────────────────────────────────────────────────────────────────── */
+function RoundTable({ cx, cy, r = 28 }: { cx: number; cy: number; r?: number }) {
   return (
-    <g transform={`translate(${cx}, ${cy})`}>
-      {/* shadow under table */}
-      <circle cx={1.5} cy={2} r={tableR} fill="rgba(0,0,0,0.08)" />
-      {/* table surface */}
-      <circle cx={0} cy={0} r={tableR}
-        fill={C.tableTop} stroke={C.tableStroke} strokeWidth={1.3} />
-      {/* inner ring (glass top effect) */}
-      <circle cx={0} cy={0} r={tableR - 5}
-        fill="none" stroke={C.tableStroke} strokeWidth={0.5} opacity={0.5} />
+    <g>
+      {/* shadow */}
+      <circle cx={cx + 2} cy={cy + 3} r={r} fill="rgba(0,0,0,0.07)" />
+      {/* surface */}
+      <circle cx={cx} cy={cy} r={r} fill="url(#table-grad)" stroke={C.tableStroke} strokeWidth={1.25} />
+      {/* inner ring */}
+      <circle cx={cx} cy={cy} r={r - 6} fill="none" stroke={C.tableStroke} strokeWidth={0.6} opacity={0.45} />
+      {/* top highlight */}
+      <ellipse cx={cx - r * 0.25} cy={cy - r * 0.3} rx={r * 0.35} ry={r * 0.18}
+        fill="rgba(255,255,255,0.40)" />
     </g>
   );
 }
@@ -217,39 +314,65 @@ function DiscussionRooms() {
         const cx = rect.x + rect.w / 2;
         const cy = rect.y + rect.h / 2;
         const num = idx + 1;
+        const doorW = 28;
+        const doorX = rect.x + rect.w - doorW - 10;
+
         return (
           <g key={id}>
-            {/* glass room */}
+            {/* room shadow */}
+            <rect x={rect.x + 2} y={rect.y + 3} width={rect.w} height={rect.h}
+              rx={12} fill="rgba(0,0,0,0.07)" />
+
+            {/* glass fill */}
             <rect x={rect.x} y={rect.y} width={rect.w} height={rect.h}
-              rx={10} fill={C.glassFill} stroke={C.glassStroke} strokeWidth={1.8} />
-            {/* top-edge glint */}
-            <rect x={rect.x + 8} y={rect.y + 1} width={rect.w - 16} height={2}
-              rx={1} fill="#fff" opacity={0.55} />
+              rx={12} fill="url(#glass-grad)" />
+
+            {/* glass walls */}
+            <rect x={rect.x} y={rect.y} width={rect.w} height={rect.h}
+              rx={12} fill="none" stroke={C.glassStroke} strokeWidth={2} />
+
+            {/* top glint — simulates glass reflection */}
+            <rect x={rect.x + 10} y={rect.y + 1} width={rect.w - 20} height={3}
+              rx={1.5} fill={C.glassGlint} />
+            <rect x={rect.x + 1} y={rect.y + 10} width={3} height={rect.h - 20}
+              rx={1.5} fill={C.glassGlint} />
+
             {/* door gap */}
-            <rect x={rect.x + rect.w - 28} y={rect.y - 1} width={24} height={4}
-              fill={C.floor} />
+            <rect x={doorX} y={rect.y - 1} width={doorW} height={4}
+              fill={C.floorDiscussion} />
+            {/* door swing arc */}
+            <path d={`M ${doorX} ${rect.y + 2} A ${doorW} ${doorW} 0 0 0 ${doorX + doorW} ${rect.y + 2 + doorW}`}
+              fill={C.glassDoor} stroke={C.glassStroke} strokeWidth={0.8} strokeDasharray="3 2" />
 
             {/* round table */}
-            <RoundTable cx={cx} cy={cy} tableR={28} />
+            <RoundTable cx={cx} cy={cy} r={26} />
 
             {/* room number badge */}
-            <g transform={`translate(${rect.x + 8}, ${rect.y + 8})`}>
-              <rect x={0} y={0} width={20} height={16} rx={5}
-                fill={C.glassStroke} fillOpacity={0.7} />
-              <text x={10} y={11.5} textAnchor="middle" fontSize={9}
-                fontWeight={800} fill="#fff">
+            <g>
+              <rect x={rect.x + 9} y={rect.y + 8} width={24} height={19} rx={6}
+                fill={C.glassStroke} fillOpacity={0.85} />
+              <text x={rect.x + 21} y={rect.y + 21} textAnchor="middle"
+                fontSize={10} fontWeight={800} fill="#fff" letterSpacing="0.02em">
                 {num}
               </text>
             </g>
 
-            {/* label inside room, below the badge */}
-            <text
-              x={cx} y={rect.y + 27}
-              textAnchor="middle" fontSize={7.5} fontWeight={600}
-              fill={C.labelGlass} opacity={0.75} letterSpacing="0.04em"
-            >
-              DISC. ROOM {num}
+            {/* room label */}
+            <text x={cx} y={rect.y + 30} textAnchor="middle"
+              fontSize={7.5} fontWeight={700} fill={C.labelGlass}
+              letterSpacing="0.06em" opacity={0.8}>
+              ROOM {num}
             </text>
+
+            {/* capacity badge */}
+            <g>
+              <rect x={rect.x + rect.w - 42} y={rect.y + 8} width={34} height={18} rx={6}
+                fill="rgba(255,255,255,0.75)" stroke={C.glassStroke} strokeWidth={0.8} />
+              <text x={rect.x + rect.w - 25} y={rect.y + 20} textAnchor="middle"
+                fontSize={8} fontWeight={600} fill={C.labelGlass}>
+                5 cap
+              </text>
+            </g>
           </g>
         );
       })}
@@ -257,9 +380,9 @@ function DiscussionRooms() {
   );
 }
 
-/* -------------------------------------------------------------------------
+/* ─────────────────────────────────────────────────────────────────────────────
    Bag lockers
-   ------------------------------------------------------------------------- */
+───────────────────────────────────────────────────────────────────────────── */
 function BagLockers() {
   return (
     <g>
@@ -269,27 +392,28 @@ function BagLockers() {
         const cW = rect.w / cols, cH = rect.h / rows;
         return (
           <g key={id}>
+            {/* shadow */}
+            <rect x={rect.x + 1} y={rect.y + 2} width={rect.w} height={rect.h}
+              rx={10} fill="rgba(0,0,0,0.07)" />
+            {/* body */}
             <rect x={rect.x} y={rect.y} width={rect.w} height={rect.h}
-              rx={8} fill={C.lockerFill} stroke={C.lockerStroke} strokeWidth={1.5} />
+              rx={10} fill="#EFF3F0" stroke="#C4D4CC" strokeWidth={1.5} />
+            {/* locker cells */}
             {Array.from({ length: cols }).flatMap((_, c) =>
               Array.from({ length: rows }).map((_, r) => (
                 <g key={`${c}-${r}`}>
-                  <rect
-                    x={rect.x + c * cW + 3} y={rect.y + r * cH + 3}
-                    width={cW - 6} height={cH - 6}
-                    rx={3} fill="#f8fbf9" stroke={C.lockerStroke} strokeWidth={0.8} />
-                  <circle
-                    cx={rect.x + c * cW + cW / 2}
-                    cy={rect.y + r * cH + cH / 2}
-                    r={2.5} fill={C.lockerStroke} opacity={0.5} />
+                  <rect x={rect.x + c * cW + 3.5} y={rect.y + r * cH + 3.5}
+                    width={cW - 7} height={cH - 7}
+                    rx={4} fill="#F8FCF9" stroke="#C0CEC8" strokeWidth={0.9} />
+                  <circle cx={rect.x + c * cW + cW / 2} cy={rect.y + r * cH + cH / 2}
+                    r={2.8} fill="#C0CEC8" opacity={0.55} />
                 </g>
               ))
             )}
-            {/* label inside locker bank */}
-            <text
-              x={rect.x + rect.w / 2} y={rect.y + rect.h + 14}
-              textAnchor="middle" fontSize={8.5} fontWeight={600}
-              fill={C.labelMuted} letterSpacing="0.04em">
+            {/* label */}
+            <text x={rect.x + rect.w / 2} y={rect.y + rect.h + 15}
+              textAnchor="middle" fontSize={8} fontWeight={700}
+              fill={C.labelMuted} letterSpacing="0.06em">
               BAG LOCKERS
             </text>
           </g>
@@ -299,40 +423,39 @@ function BagLockers() {
   );
 }
 
-/* -------------------------------------------------------------------------
-   Window accents on left wall
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Window accents
+───────────────────────────────────────────────────────────────────────────── */
 function WindowAccents() {
   const wallX = BUILDING.x;
-  const winH  = 42, step = winH + 32;
+  const winH = 40, step = winH + 30;
   const wins: number[] = [];
   let y = 196;
-  while (y + winH <= 556) { wins.push(y); y += step; }
+  while (y + winH <= 552) { wins.push(y); y += step; }
   return (
     <g>
       {wins.map((wy, i) => (
         <g key={i}>
-          <rect x={wallX - 4} y={wy} width={10} height={winH} rx={2}
-            fill={C.windowFill} stroke={C.windowFrame} strokeWidth={1.25} />
-          <rect x={wallX - 2} y={wy + 3} width={3} height={winH - 6} rx={1}
-            fill={C.windowGlass} opacity={0.8} />
-          <line x1={wallX - 4} y1={wy + winH / 2} x2={wallX + 6} y2={wy + winH / 2}
-            stroke={C.windowFrame} strokeWidth={0.7} opacity={0.55} />
+          <rect x={wallX - 3} y={wy} width={8} height={winH} rx={2}
+            fill={C.windowFill} stroke={C.windowFrame} strokeWidth={1.2} />
+          <rect x={wallX - 1} y={wy + 3} width={3} height={winH - 6} rx={1}
+            fill={C.windowGlass} opacity={0.85} />
+          <line x1={wallX - 3} y1={wy + winH / 2} x2={wallX + 5} y2={wy + winH / 2}
+            stroke={C.windowFrame} strokeWidth={0.65} opacity={0.5} />
         </g>
       ))}
-      <text x={wallX + 14} y={376} textAnchor="middle"
-        fontSize={8.5} fontWeight={600} fill={C.labelMuted}
-        letterSpacing="0.09em" opacity={0.6}
-        transform={`rotate(-90, ${wallX + 14}, 376)`}>
+      <text x={wallX + 16} y={375} textAnchor="middle"
+        fontSize={8} fontWeight={700} fill={C.labelMuted} letterSpacing="0.09em" opacity={0.55}
+        transform={`rotate(-90, ${wallX + 16}, 375)`}>
         WINDOW SEATS
       </text>
     </g>
   );
 }
 
-/* -------------------------------------------------------------------------
-   Cubicle partition grid
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Cubicle partitions
+───────────────────────────────────────────────────────────────────────────── */
 function CubiclePartitions() {
   return (
     <g>
@@ -340,18 +463,18 @@ function CubiclePartitions() {
         const { area, rows, cols } = block;
         const cW = area.w / cols, cH = area.h / rows;
         return (
-          <g key={block.prefix}>
+          <g key={block.prefix} opacity={0.55}>
             {Array.from({ length: cols - 1 }).map((_, c) => (
               <line key={`v${c}`}
-                x1={area.x + cW * (c + 1)} y1={area.y + 6}
-                x2={area.x + cW * (c + 1)} y2={area.y + area.h - 6}
-                stroke={C.cubicStroke} strokeWidth={1.5} />
+                x1={area.x + cW * (c + 1)} y1={area.y + 8}
+                x2={area.x + cW * (c + 1)} y2={area.y + area.h - 8}
+                stroke={C.cubBorder} strokeWidth={1.75} />
             ))}
             {Array.from({ length: rows - 1 }).map((_, r) => (
               <line key={`h${r}`}
-                x1={area.x + 6} y1={area.y + cH * (r + 1)}
-                x2={area.x + area.w - 6} y2={area.y + cH * (r + 1)}
-                stroke={C.cubicStroke} strokeWidth={1.5} />
+                x1={area.x + 8} y1={area.y + cH * (r + 1)}
+                x2={area.x + area.w - 8} y2={area.y + cH * (r + 1)}
+                stroke={C.cubBorder} strokeWidth={1.75} />
             ))}
           </g>
         );
@@ -360,135 +483,224 @@ function CubiclePartitions() {
   );
 }
 
-/* -------------------------------------------------------------------------
-   Zone labels — all positioned INSIDE their zones, no overlap with aisles
-   Open zones: label centred in the 22 px gap between top & bottom clusters
-   Bookshelf:  label at very top of zone (above first shelf bar)
-   Cubicles:   label at very top of zone (above first seat row)
-   Discussion: labelled individually inside each glass room
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Zone labels
+───────────────────────────────────────────────────────────────────────────── */
 function ZoneLabels() {
-  /* Open Left/Right: gap between clusters y=346–368, centre y=357 */
-  const OLT_AREA_BOT = 178 + 168;          // 346
-  const OLB_AREA_TOP = 368;
-  const openMidY = (OLT_AREA_BOT + OLB_AREA_TOP) / 2;  // 357
-
-  /* Bookshelf zone top: y=148, first bar starts y≈176 → use y=163 */
-  const shelfLabelY = 163;
-
-  /* Cubicle zones: y=572, first seat area y=592 → use gap centre y=582 */
-  const cubLabelY = 582;
+  const openMidY   = (178 + 168 + 368) / 2;  // ≈ 357 — gap between clusters
+  const shelfLabelY = 162;
+  const cubLabelY   = 582;
+  const discLabelY  = 582;
 
   return (
     <g>
-      {/* ── Open Reading Left ────────────────────────────────────── */}
-      <ZonePill cx={279} cy={openMidY} text="OPEN READING" sub="Left Wing · 20 seats" />
+      {/* Open Reading Left */}
+      <ZoneLabel
+        cx={279} cy={openMidY}
+        text="OPEN READING"
+        sub="Left Wing · 20 seats"
+        titleColor={C.labelMed}
+        borderColor={C.openBorder}
+        bgColor="rgba(240,252,245,0.92)"
+      />
 
-      {/* ── Open Reading Right ───────────────────────────────────── */}
-      <ZonePill cx={1001} cy={openMidY} text="OPEN READING" sub="Right Wing · 20 seats" />
+      {/* Open Reading Right */}
+      <ZoneLabel
+        cx={1001} cy={openMidY}
+        text="OPEN READING"
+        sub="Right Wing · 20 seats"
+        titleColor={C.labelMed}
+        borderColor={C.openBorder}
+        bgColor="rgba(240,252,245,0.92)"
+      />
 
-      {/* ── Book Collection ──────────────────────────────────────── */}
-      <ZonePill cx={640} cy={shelfLabelY} text="BOOK COLLECTION" sub="Central Stacks" />
+      {/* Book Collection */}
+      <ZoneLabel
+        cx={640} cy={shelfLabelY}
+        text="BOOK COLLECTION"
+        sub="Central Stacks"
+        titleColor={C.labelShelf}
+        borderColor={C.shelfBorder}
+        bgColor="rgba(253,250,242,0.92)"
+      />
 
-      {/* ── Cubicle Left ─────────────────────────────────────────── */}
-      <ZonePill cx={232} cy={cubLabelY} text="CUBICLE ZONE" sub="12 private desks" />
+      {/* Cubicle Left */}
+      <ZoneLabel
+        cx={232} cy={cubLabelY}
+        text="CUBICLE ZONE"
+        sub="Left · 12 private desks"
+        titleColor={C.labelCubicle}
+        borderColor={C.cubBorder}
+        bgColor="rgba(242,245,252,0.92)"
+      />
 
-      {/* ── Cubicle Right ────────────────────────────────────────── */}
-      <ZonePill cx={1048} cy={cubLabelY} text="CUBICLE ZONE" sub="12 private desks" />
+      {/* Cubicle Right */}
+      <ZoneLabel
+        cx={1048} cy={cubLabelY}
+        text="CUBICLE ZONE"
+        sub="Right · 12 private desks"
+        titleColor={C.labelCubicle}
+        borderColor={C.cubBorder}
+        bgColor="rgba(242,245,252,0.92)"
+      />
 
-      {/* ── Discussion section header (between aisle and rooms) ───── */}
-      <ZonePill
-        cx={640} cy={cubLabelY}
+      {/* Discussion Rooms */}
+      <ZoneLabel
+        cx={640} cy={discLabelY}
         text="DISCUSSION ROOMS"
         sub="Glass pods · 5 seats each"
-        stroke={C.glassStroke}
-        color={C.labelGlass}
+        titleColor={C.labelGlass}
+        borderColor={C.discBorder}
+        bgColor="rgba(235,250,242,0.92)"
       />
     </g>
   );
 }
 
-/* -------------------------------------------------------------------------
-   Reception desk
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Zone separator lines — internal architectural walls
+───────────────────────────────────────────────────────────────────────────── */
+function ZoneSeparators() {
+  return (
+    <g stroke={C.wall} strokeWidth={1.5} strokeLinecap="round" opacity={0.25}>
+      {/* Top zone boundary */}
+      <line x1={BUILDING.x} y1={160} x2={BUILDING.x + BUILDING.w} y2={160} />
+      {/* Open ↔ Cubicle */}
+      <line x1={BUILDING.x} y1={572} x2={BUILDING.x + BUILDING.w} y2={572} />
+      {/* Vertical: open left | bookshelf */}
+      <line x1={526} y1={160} x2={526} y2={568} />
+      <line x1={537} y1={160} x2={537} y2={568} />
+      {/* Vertical: bookshelf | open right */}
+      <line x1={743} y1={160} x2={743} y2={568} />
+      <line x1={754} y1={160} x2={754} y2={568} />
+      {/* Vertical: cubicle left | discussion */}
+      <line x1={432} y1={572} x2={432} y2={BUILDING.y + BUILDING.h} />
+      <line x1={448} y1={572} x2={448} y2={BUILDING.y + BUILDING.h} />
+      {/* Vertical: discussion | cubicle right */}
+      <line x1={832} y1={572} x2={832} y2={BUILDING.y + BUILDING.h} />
+      <line x1={848} y1={572} x2={848} y2={BUILDING.y + BUILDING.h} />
+    </g>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Reception desk — modern curved counter
+───────────────────────────────────────────────────────────────────────────── */
 function ReceptionDesk() {
   const { x, y, w, h } = RECEPTION;
   const cx = x + w / 2;
+  const r  = 12;
+
   return (
     <g>
-      {/* drop shadow */}
-      <path d={`M ${x+14} ${y+h+4} L ${x+14} ${y+14}
-          Q ${x+14} ${y+4} ${x+26} ${y+4}
-          L ${x+w-26} ${y+4} Q ${x+w-14} ${y+4} ${x+w-14} ${y+14}
-          L ${x+w-14} ${y+h+4} Z`}
-        fill="rgba(0,0,0,0.055)" />
-      {/* surface */}
-      <path d={`M ${x+14} ${y+h} L ${x+14} ${y+14}
-          Q ${x+14} ${y} ${x+26} ${y}
-          L ${x+w-26} ${y} Q ${x+w-14} ${y} ${x+w-14} ${y+14}
-          L ${x+w-14} ${y+h} Z`}
-        fill={C.recepFill} stroke={C.recepStroke} strokeWidth={1.6} />
-      {/* counter front edge */}
-      <line x1={x+14} y1={y+h} x2={x+w-14} y2={y+h}
-        stroke={C.recepStroke} strokeWidth={2.5} strokeLinecap="round" opacity={0.45} />
-      {/* monitors */}
-      <rect x={cx-34} y={y+5} width={22} height={16} rx={3}
-        fill={C.recepStroke} fillOpacity={0.22} stroke={C.recepStroke} strokeWidth={0.8} />
-      <rect x={cx+12} y={y+5} width={22} height={16} rx={3}
-        fill={C.recepStroke} fillOpacity={0.22} stroke={C.recepStroke} strokeWidth={0.8} />
+      {/* shadow */}
+      <rect x={x + 2} y={y + 4} width={w} height={h} rx={r} fill="rgba(0,0,0,0.08)" />
+      {/* body */}
+      <rect x={x} y={y} width={w} height={h} rx={r}
+        fill="url(#recep-grad)" stroke={C.recepStroke} strokeWidth={1.75} />
+      {/* counter front accent line */}
+      <line x1={x + r} y1={y + h} x2={x + w - r} y2={y + h}
+        stroke={C.recepStroke} strokeWidth={3} strokeLinecap="round" opacity={0.35} />
+      {/* top highlight */}
+      <rect x={x + r} y={y + 1} width={w - r * 2} height={3} rx={1.5}
+        fill="rgba(255,255,255,0.70)" />
+
+      {/* monitor screens */}
+      {[cx - 52, cx + 24].map((mx, i) => (
+        <g key={i}>
+          <rect x={mx} y={y + 7} width={24} height={16} rx={3.5}
+            fill={C.recepAccent} fillOpacity={0.25} stroke={C.recepStroke} strokeWidth={0.9} />
+          {/* screen glow */}
+          <rect x={mx + 2} y={y + 9} width={20} height={11} rx={2}
+            fill={C.recepAccent} fillOpacity={0.12} />
+          {/* screen stand */}
+          <rect x={mx + 10} y={y + 23} width={4} height={4} rx={1}
+            fill={C.recepStroke} fillOpacity={0.45} />
+        </g>
+      ))}
+
       {/* label */}
-      <text x={cx} y={y + h/2 + 5} textAnchor="middle"
-        fontSize={13} fontWeight={700} letterSpacing="0.06em" fill={C.recepText}>
+      <text x={cx} y={y + h / 2 + 6} textAnchor="middle"
+        fontSize={15} fontWeight={800} letterSpacing="0.10em" fill={C.recepText}
+        style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
         RECEPTION
       </text>
     </g>
   );
 }
 
-/* -------------------------------------------------------------------------
-   Entrance
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Entrance arch
+───────────────────────────────────────────────────────────────────────────── */
 function EntranceArch() {
   const { x, y, w } = ENTRANCE;
   const cx = x + w / 2;
+  const halfW = w / 2;
+
   return (
     <g>
-      <rect x={x} y={y - 5} width={w} height={10} fill={C.floor} />
-      {/* double-door arcs */}
-      <path d={`M ${cx} ${y+2} A ${w/2} ${w/2} 0 0 0 ${x} ${y+2}`}
-        fill="none" stroke={C.recepStroke} strokeWidth={1.2} opacity={0.5} />
-      <path d={`M ${cx} ${y+2} A ${w/2} ${w/2} 0 0 1 ${x+w} ${y+2}`}
-        fill="none" stroke={C.recepStroke} strokeWidth={1.2} opacity={0.5} />
-      {/* frame posts */}
-      <line x1={x}   y1={y-2} x2={x}   y2={y+4} stroke={C.wallAccent} strokeWidth={3} />
-      <line x1={x+w} y1={y-2} x2={x+w} y2={y+4} stroke={C.wallAccent} strokeWidth={3} />
-      {/* label */}
-      <text x={cx} y={y+26} textAnchor="middle"
-        fontSize={10.5} fontWeight={700} letterSpacing="0.08em" fill={C.labelMuted}>
+      {/* wall gap cover */}
+      <rect x={x} y={y - 6} width={w} height={10} fill={C.floor} />
+
+      {/* double door arc */}
+      <path d={`M ${cx} ${y + 1} A ${halfW} ${halfW} 0 0 0 ${x} ${y + 1}`}
+        fill="rgba(82,184,146,0.10)" stroke={C.glassStroke} strokeWidth={1.25} opacity={0.7} />
+      <path d={`M ${cx} ${y + 1} A ${halfW} ${halfW} 0 0 1 ${x + w} ${y + 1}`}
+        fill="rgba(82,184,146,0.10)" stroke={C.glassStroke} strokeWidth={1.25} opacity={0.7} />
+
+      {/* center door divider */}
+      <line x1={cx} y1={y - 4} x2={cx} y2={y + 4}
+        stroke={C.wall} strokeWidth={2.5} />
+
+      {/* door posts */}
+      <line x1={x}     y1={y - 4} x2={x}     y2={y + 4} stroke={C.wall} strokeWidth={4} />
+      <line x1={x + w} y1={y - 4} x2={x + w} y2={y + 4} stroke={C.wall} strokeWidth={4} />
+
+      {/* entrance label */}
+      <text x={cx} y={y + 28} textAnchor="middle"
+        fontSize={11} fontWeight={800} letterSpacing="0.09em" fill={C.labelMuted}
+        style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
         ▲  MAIN ENTRANCE
       </text>
     </g>
   );
 }
 
-/* -------------------------------------------------------------------------
-   You-are-here pin
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   You-are-here pin — with pulse glow
+───────────────────────────────────────────────────────────────────────────── */
 function YouAreHere() {
-  const px = 640, py = 112;
-  const col = "hsl(158 64% 24%)";
+  const px = 640, py = 110;
+  const col = "hsl(158 64% 28%)";
+  const glowCol = "hsl(158 64% 42%)";
+
   return (
     <g>
-      <circle cx={px} cy={py} r={6} fill={col} opacity={0.2}>
-        <animate attributeName="r" values="6;20;6" dur="2.8s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.22;0;0.22" dur="2.8s" repeatCount="indefinite" />
+      {/* outer glow rings — pulsing */}
+      <circle cx={px} cy={py} r={8} fill={glowCol} opacity={0}>
+        <animate attributeName="r"       values="8;28;8"         dur="2.6s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.28;0;0.28"    dur="2.6s" repeatCount="indefinite" />
       </circle>
-      <path d={`M ${px} ${py+9} L ${px-5} ${py-1} L ${px+5} ${py-1} Z`} fill={col} />
-      <circle cx={px} cy={py-6} r={9} fill={col} stroke="#fff" strokeWidth={2} />
-      <circle cx={px} cy={py-6} r={3} fill="#fff" />
-      <g transform={`translate(${px+14}, ${py-17})`}>
-        <rect width={94} height={22} rx={11} fill="#fff" stroke={C.recepStroke} strokeWidth={1} />
-        <text x={47} y={15.5} textAnchor="middle" fontSize={10.5} fontWeight={700} fill={col}>
+      <circle cx={px} cy={py} r={8} fill={glowCol} opacity={0}>
+        <animate attributeName="r"       values="8;18;8"         dur="2.6s" begin="0.4s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.35;0;0.35"    dur="2.6s" begin="0.4s" repeatCount="indefinite" />
+      </circle>
+
+      {/* pin */}
+      <path d={`M ${px} ${py + 10} L ${px - 5} ${py - 1} L ${px + 5} ${py - 1} Z`} fill={col} />
+      {/* pin head with border */}
+      <circle cx={px} cy={py - 7} r={10} fill="#FFFFFF" stroke={col} strokeWidth={2} />
+      <circle cx={px} cy={py - 7} r={6} fill={col} />
+      <circle cx={px} cy={py - 7} r={2.5} fill="#FFFFFF" />
+
+      {/* label bubble */}
+      <g transform={`translate(${px + 15}, ${py - 20})`}>
+        <rect x={0} y={0} width={98} height={24} rx={12}
+          fill="#FFFFFF" stroke={col} strokeWidth={1.25} />
+        <rect x={1} y={1} width={96} height={22} rx={11}
+          fill="rgba(255,255,255,0.4)" />
+        <text x={49} y={16.5} textAnchor="middle"
+          fontSize={11} fontWeight={700} fill={col} letterSpacing="0.02em">
           You are here
         </text>
       </g>
@@ -496,111 +708,135 @@ function YouAreHere() {
   );
 }
 
-/* -------------------------------------------------------------------------
-   Open zone dot-grid background
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Open zone backgrounds — clean fills, no dot grid
+───────────────────────────────────────────────────────────────────────────── */
 function OpenZoneBackground({ room }: { room: RoomDef }) {
   const { rect } = room;
   return (
+    <rect x={rect.x} y={rect.y} width={rect.w} height={rect.h} fill="url(#open-grad)" />
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Mini legend (integrated into the map, bottom-left inside building)
+───────────────────────────────────────────────────────────────────────────── */
+function MapLegend() {
+  const items = [
+    { label: "Available",    color: "hsl(158 55% 64%)" },
+    { label: "Occupied",     color: "hsl(0 68% 64%)"   },
+    { label: "Away",         color: "hsl(38 88% 62%)"  },
+    { label: "Abandoned",    color: "hsl(210 14% 62%)" },
+    { label: "Maintenance",  color: "hsl(210 68% 60%)" },
+  ];
+  const itemW  = 88;
+  const totalW = itemW * items.length + 16;
+  const x      = BUILDING.x + BUILDING.w / 2 - totalW / 2;
+  const y      = BUILDING.y + BUILDING.h - 28;
+
+  return (
     <g>
-      <rect x={rect.x} y={rect.y} width={rect.w} height={rect.h} fill={C.openFill} />
-      {Array.from({ length: Math.floor(rect.w / 40) }).flatMap((_, ci) =>
-        Array.from({ length: Math.floor(rect.h / 40) }).map((_, ri) => (
-          <circle key={`${ci}-${ri}`}
-            cx={rect.x + 20 + ci * 40}
-            cy={rect.y + 20 + ri * 40}
-            r={1.1} fill={C.openStroke} opacity={0.32} />
-        ))
-      )}
+      {/* pill background */}
+      <rect x={x} y={y - 10} width={totalW} height={22} rx={11}
+        fill="rgba(255,255,255,0.88)" stroke="rgba(0,0,0,0.08)" strokeWidth={1} />
+      {/* items */}
+      {items.map((item, i) => (
+        <g key={item.label} transform={`translate(${x + 10 + i * itemW}, ${y + 1})`}>
+          <circle cx={6} cy={0} r={4} fill={item.color} />
+          <text x={14} y={4} fontSize={7.5} fontWeight={600} fill={C.labelMuted} letterSpacing="0.03em">
+            {item.label}
+          </text>
+        </g>
+      ))}
     </g>
   );
 }
 
-/* -------------------------------------------------------------------------
-   Main component
-   ------------------------------------------------------------------------- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Main FloorPlan component
+───────────────────────────────────────────────────────────────────────────── */
 export function FloorPlan() {
-  const openRooms     = ROOMS.filter((r) => r.id.startsWith("open-"));
-  const cubicleRooms  = ROOMS.filter((r) => r.id.startsWith("cubicle-"));
+  const openRooms    = ROOMS.filter((r) => r.id.startsWith("open-"));
+  const cubicleRooms = ROOMS.filter((r) => r.id.startsWith("cubicle-"));
   const bookshelfRoom = ROOMS.find((r) => r.id === "bookshelf-center")!;
 
   return (
     <g>
-      {/* outer ground plane */}
-      <rect x={BUILDING.x - 16} y={BUILDING.y - 16}
-        width={BUILDING.w + 32} height={BUILDING.h + 32}
-        rx={24} fill="#e8eeea" />
+      <Defs />
 
-      {/* building shell */}
+      {/* ── Outer context (parking lot / pathway) ── */}
+      <rect x={BUILDING.x - 20} y={BUILDING.y - 20}
+        width={BUILDING.w + 40} height={BUILDING.h + 40}
+        rx={28} fill={C.exterior} />
+      {/* subtle inner shadow ring */}
+      <rect x={BUILDING.x - 8} y={BUILDING.y - 8}
+        width={BUILDING.w + 16} height={BUILDING.h + 16}
+        rx={20} fill={C.exteriorShadow} />
+
+      {/* ── Building shell ── */}
       <rect x={BUILDING.x} y={BUILDING.y} width={BUILDING.w} height={BUILDING.h}
-        rx={14} fill={C.floor} stroke={C.wall} strokeWidth={5} />
+        rx={16} fill={C.floor} stroke={C.wall} strokeWidth={6} />
 
-      {/* foyer tint */}
-      <rect x={BUILDING.x + 2} y={BUILDING.y + 2}
-        width={BUILDING.w - 4} height={130}
-        rx={12} fill={C.floorFoyer} opacity={0.8} />
+      {/* ── Foyer ── */}
+      <rect x={BUILDING.x + 3} y={BUILDING.y + 3}
+        width={BUILDING.w - 6} height={128}
+        rx={14} fill={C.floorFoyer} />
 
-      {/* open zone backgrounds */}
+      {/* ── Open zone backgrounds ── */}
       {openRooms.map((r) => <OpenZoneBackground key={r.id} room={r} />)}
 
-      {/* bookshelf background */}
+      {/* ── Bookshelf zone ── */}
       <rect x={bookshelfRoom.rect.x} y={bookshelfRoom.rect.y}
         width={bookshelfRoom.rect.w} height={bookshelfRoom.rect.h}
         fill={C.floorShelf} />
 
-      {/* cubicle zone backgrounds */}
+      {/* ── Cubicle zone backgrounds ── */}
       {cubicleRooms.map((r) => (
         <rect key={r.id} x={r.rect.x} y={r.rect.y} width={r.rect.w} height={r.rect.h}
-          fill={C.cubicFill} />
+          fill="url(#cub-grad)" />
       ))}
 
-      {/* horizontal aisle — middle ↔ bottom */}
-      <rect x={BUILDING.x} y={566} width={BUILDING.w} height={7} fill={C.aisle} />
-      <line x1={BUILDING.x} y1={566} x2={BUILDING.x + BUILDING.w} y2={566}
-        stroke={C.aisleLine} strokeWidth={1} />
-      <line x1={BUILDING.x} y1={573} x2={BUILDING.x + BUILDING.w} y2={573}
-        stroke={C.aisleLine} strokeWidth={1} />
+      {/* ── Discussion zone background ── */}
+      <rect x={448} y={578} width={384} height={282} rx={6} fill={C.floorDiscussion} />
 
-      {/* vertical aisles — left / bookshelf / right */}
-      <rect x={524} y={160} width={13} height={406} fill={C.aisle} />
-      <rect x={743} y={160} width={13} height={406} fill={C.aisle} />
+      {/* ── Zone separator lines (subtle internal walls) ── */}
+      <ZoneSeparators />
 
-      {/* vertical aisles — bottom section */}
-      <rect x={430} y={573} width={20} height={295} fill={C.aisle} />
-      <rect x={830} y={573} width={20} height={295} fill={C.aisle} />
-
-      {/* bag lockers */}
+      {/* ── Bag lockers ── */}
       <BagLockers />
 
-      {/* bookshelves */}
+      {/* ── Bookshelves ── */}
       <Bookshelves />
 
-      {/* extra bookshelves in cubicle freed areas */}
+      {/* ── Extra bookshelves in cubicle freed rows ── */}
       <CubicleExtraShelves />
 
-      {/* window accents */}
+      {/* ── Windows ── */}
       <WindowAccents />
 
-      {/* cubicle partitions */}
+      {/* ── Cubicle partitions ── */}
       <CubiclePartitions />
 
-      {/* communal tables */}
+      {/* ── Communal tables ── */}
       <CommunalTables />
 
-      {/* discussion rooms (round tables + 5 chairs) */}
+      {/* ── Discussion rooms ── */}
       <DiscussionRooms />
 
-      {/* reception */}
+      {/* ── Reception desk ── */}
       <ReceptionDesk />
 
-      {/* zone labels — all inside their zones */}
+      {/* ── Zone labels ── */}
       <ZoneLabels />
 
-      {/* entrance */}
+      {/* ── Entrance ── */}
       <EntranceArch />
 
-      {/* you-are-here */}
+      {/* ── You are here ── */}
       <YouAreHere />
+
+      {/* ── Integrated map legend ── */}
+      <MapLegend />
     </g>
   );
 }

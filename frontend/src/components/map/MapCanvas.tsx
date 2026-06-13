@@ -13,34 +13,29 @@ import { SeatPopover, type PopoverAnchor } from "./SeatPopover";
 
 export function MapCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [hover, setHover] = useState<{ seat: SeatT; anchor: PopoverAnchor } | null>(
-    null
-  );
+  const [hover, setHover] = useState<{ seat: SeatT; anchor: PopoverAnchor } | null>(null);
 
-  const seats = useLibrary((s) => s.seats);
-  const filters = useLibrary((s) => s.filters);
+  const seats      = useLibrary((s) => s.seats);
+  const filters    = useLibrary((s) => s.filters);
   const selectedId = useLibrary((s) => s.selectedId);
-  const mySeatId = useLibrary((s) => s.mySeatId);
-  const select = useLibrary((s) => s.select);
+  const mySeatId   = useLibrary((s) => s.mySeatId);
+  const select     = useLibrary((s) => s.select);
 
-  const visible = filterSeats(seats, filters);
+  const visible    = filterSeats(seats, filters);
   const visibleIds = new Set(visible.map((s) => s.id));
   const filtersActive =
-    filters.query !== "" ||
+    filters.query  !== "" ||
     filters.status !== "all" ||
-    filters.zone !== "all" ||
-    filters.type !== "all";
+    filters.zone   !== "all" ||
+    filters.type   !== "all";
 
   const onSeatHover = useCallback((h: SeatHover | null) => {
-    if (!h || !containerRef.current) {
-      setHover(null);
-      return;
-    }
-    const cRect = containerRef.current.getBoundingClientRect();
-    const sRect = h.el.getBoundingClientRect();
-    const x = sRect.left + sRect.width / 2 - cRect.left;
+    if (!h || !containerRef.current) { setHover(null); return; }
+    const cRect  = containerRef.current.getBoundingClientRect();
+    const sRect  = h.el.getBoundingClientRect();
+    const x      = sRect.left + sRect.width / 2 - cRect.left;
     const seatTop = sRect.top - cRect.top;
-    const above = seatTop > 150;
+    const above   = seatTop > 150;
     setHover({
       seat: h.seat,
       anchor: { x, y: above ? seatTop - 8 : seatTop + sRect.height + 8, above },
@@ -50,7 +45,7 @@ export function MapCanvas() {
   return (
     <div
       ref={containerRef}
-      className="relative h-full w-full overflow-hidden rounded-2xl border border-border bg-[#eef3f0] shadow-xs"
+      className="relative h-full w-full overflow-hidden rounded-2xl border border-border bg-[#DFE8E2] shadow-xs"
     >
       <svg
         viewBox={`0 0 ${FLOOR.width} ${FLOOR.height}`}
@@ -73,24 +68,26 @@ export function MapCanvas() {
         ))}
       </svg>
 
-      {/* hover popover */}
+      {/* Hover popover */}
       <AnimatePresence>
         {hover && <SeatPopover seat={hover.seat} anchor={hover.anchor} />}
       </AnimatePresence>
 
-      {/* legend */}
-      <div className="pointer-events-none absolute bottom-4 left-4 hidden flex-wrap gap-x-4 gap-y-1.5 rounded-xl glass px-3.5 py-2.5 sm:flex">
-        {STATUS_ORDER.map((s) => (
-          <div key={s} className="flex items-center gap-1.5">
-            <span
-              className="h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: `hsl(var(--st-${s}))` }}
-            />
-            <span className="text-[11px] font-medium text-muted-foreground">
-              {STATUS_META[s].label}
-            </span>
-          </div>
-        ))}
+      {/* Floating legend — shown on small screens where SVG legend is tiny */}
+      <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 sm:hidden">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-xl border border-border/60 bg-surface/90 px-3 py-2 shadow-xs backdrop-blur-sm">
+          {STATUS_ORDER.map((s) => (
+            <div key={s} className="flex items-center gap-1.5">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: `hsl(var(--st-${s}))` }}
+              />
+              <span className="text-[10px] font-medium text-muted-foreground">
+                {STATUS_META[s].label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
