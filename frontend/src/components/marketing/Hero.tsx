@@ -1,21 +1,13 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Armchair, LayoutDashboard } from "lucide-react";
+import { ArrowRight, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MiniLibraryMap } from "./MiniLibraryMap";
 import { fadeUp, staggerChildren } from "@/lib/motion";
 import { useAuth } from "@/lib/auth";
 
-function timeGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
-
 export function Hero() {
   const user = useAuth();
-  const name = user ? user.email.split("@")[0] : null;
 
   return (
     <section className="relative overflow-hidden pt-36 pb-20 sm:pt-44 sm:pb-28">
@@ -26,25 +18,6 @@ export function Hero() {
       <div className="mx-auto grid max-w-[1200px] items-center gap-14 px-6 lg:grid-cols-2">
         {/* left — text */}
         <motion.div variants={staggerChildren(0.1)} initial="hidden" animate="show">
-
-          {/* Personalised greeting — shown only when signed in */}
-          {user && (
-            <motion.div variants={fadeUp} className="mb-6">
-              <div className="inline-flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/6 px-4 py-3">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-white">
-                  <Armchair className="size-4" />
-                </span>
-                <div>
-                  <p className="text-[13px] font-medium text-muted-foreground">
-                    {timeGreeting()},
-                  </p>
-                  <p className="text-[16px] font-semibold tracking-tight text-foreground capitalize">
-                    {name}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
 
           <motion.h1
             variants={fadeUp}
