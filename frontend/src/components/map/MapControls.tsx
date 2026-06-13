@@ -49,7 +49,7 @@ export function MapControls() {
     filters.type !== "all";
 
   return (
-    <div className="flex flex-col gap-2.5 rounded-xl border border-white/40 bg-white/75 px-3.5 py-2.5 shadow-sm backdrop-blur-md lg:flex-row lg:items-center">
+    <div className="flex flex-col gap-2.5 rounded-xl border border-border bg-surface px-3.5 py-2.5 shadow-xs lg:flex-row lg:items-center">
 
       {/* search */}
       <div className="relative flex-1 lg:max-w-[260px]">

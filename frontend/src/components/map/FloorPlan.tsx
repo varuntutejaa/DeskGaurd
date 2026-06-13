@@ -575,8 +575,6 @@ function ZoneLabels() {
 function ZoneSeparators() {
   return (
     <g stroke={C.wall} strokeWidth={1.5} strokeLinecap="round" opacity={0.25}>
-      {/* Top zone boundary */}
-      <line x1={BUILDING.x} y1={160} x2={BUILDING.x + BUILDING.w} y2={160} />
       {/* Open ↔ Cubicle */}
       <line x1={BUILDING.x} y1={572} x2={BUILDING.x + BUILDING.w} y2={572} />
       {/* Vertical: open left | bookshelf */}
@@ -804,10 +802,7 @@ export function FloorPlan() {
       <rect x={BUILDING.x} y={BUILDING.y} width={BUILDING.w} height={BUILDING.h}
         rx={16} fill={C.floor} stroke={C.wall} strokeWidth={6} />
 
-      {/* ── Foyer ── */}
-      <rect x={BUILDING.x + 3} y={BUILDING.y + 3}
-        width={BUILDING.w - 6} height={128}
-        rx={14} fill={C.floorFoyer} />
+      {/* foyer removed — viewBox crops above y=128 */}
 
       {/* ── Open zone backgrounds ── */}
       {openRooms.map((r) => <OpenZoneBackground key={r.id} room={r} />)}
@@ -829,8 +824,7 @@ export function FloorPlan() {
       {/* ── Zone separator lines (subtle internal walls) ── */}
       <ZoneSeparators />
 
-      {/* ── Bag lockers ── */}
-      <BagLockers />
+      {/* bag lockers removed */}
 
       {/* ── Bookshelves ── */}
       <Bookshelves />
@@ -850,17 +844,8 @@ export function FloorPlan() {
       {/* ── Discussion rooms ── */}
       <DiscussionRooms />
 
-      {/* ── Reception desk ── */}
-      <ReceptionDesk />
-
       {/* ── Zone labels ── */}
       <ZoneLabels />
-
-      {/* ── Entrance ── */}
-      <EntranceArch />
-
-      {/* ── You are here ── */}
-      <YouAreHere />
 
       {/* ── Integrated map legend ── */}
       <MapLegend />
