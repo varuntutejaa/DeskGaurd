@@ -10,11 +10,18 @@ import { HttpError } from "./services/errors.js";
 export function createApp() {
   const app = express();
 
-  const origins = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
+  const explicitOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
     .split(",")
     .map((s) => s.trim());
 
-  app.use(cors({ origin: origins }));
+  app.use(cors({
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+      if (explicitOrigins.includes(origin)) return cb(null, true);
+      if (/\.vercel\.app$/.test(origin)) return cb(null, true);
+      cb(new Error(`CORS: ${origin} not allowed`));
+    },
+  }));
   app.use(express.json());
 
   app.get("/health", (_req: Request, res: Response) => {
