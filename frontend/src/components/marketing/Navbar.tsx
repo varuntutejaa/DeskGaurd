@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Map } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -12,9 +13,18 @@ const NAV_LINKS = [
   { label: "About", href: "#about" },
 ];
 
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
+
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const user = useAuth();
+  const name = user ? user.email.split("@")[0] : null;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -54,9 +64,24 @@ export function Navbar() {
           </nav>
 
           <div className="hidden items-center gap-2 md:flex">
-            <Button variant="primary" size="sm" asChild>
-              <Link to="/login">Login</Link>
-            </Button>
+            {user ? (
+              <>
+                <span className="text-[13px] font-medium text-muted-foreground">
+                  {greeting()},{" "}
+                  <span className="font-semibold text-foreground">{name}</span>
+                </span>
+                <Button variant="primary" size="sm" asChild>
+                  <Link to="/library">
+                    <Map className="size-3.5" />
+                    Live Map
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <Button variant="primary" size="sm" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+            )}
           </div>
 
           <button
@@ -91,9 +116,24 @@ export function Navbar() {
                 </a>
               ))}
               <div className="mt-2 border-t border-border/70 pt-3">
-                <Button variant="primary" size="sm" className="w-full" asChild>
-                  <Link to="/login">Login</Link>
-                </Button>
+                {user ? (
+                  <div className="space-y-2">
+                    <p className="px-1 text-[13px] text-muted-foreground">
+                      {greeting()},{" "}
+                      <span className="font-semibold text-foreground">{name}</span>
+                    </p>
+                    <Button variant="primary" size="sm" className="w-full" asChild>
+                      <Link to="/library" onClick={() => setOpen(false)}>
+                        <Map className="size-3.5" />
+                        View Live Map
+                      </Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="primary" size="sm" className="w-full" asChild>
+                    <Link to="/login">Login</Link>
+                  </Button>
+                )}
               </div>
             </div>
           </motion.div>

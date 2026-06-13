@@ -1,5 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="#175c40"/>
-  <path d="M16 5l9 3.3v7.8c0 5.6-3.7 10.6-9 12.4-5.3-1.8-9-6.8-9-12.4V8.3L16 5z" fill="none" stroke="#f0faf5" stroke-width="1.9" stroke-linejoin="round"/>
-  <path d="M11.2 16l3.2 3.2 6-6.3" fill="none" stroke="#f0faf5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="240 35 200 215">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <path d="M340 50 L420 90 L420 160 Q420 200 340 230 Q260 200 260 160 L260 90 Z" fill="url(#g)" stroke="#047857" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M340 65 L405 100 L405 160 Q405 190 340 215 Q275 190 275 160 L275 100 Z" fill="none" stroke="#d1fae5" stroke-width="1.5" stroke-linejoin="round" opacity="0.6"/>
+  <rect x="305" y="105" width="70" height="55" rx="3" fill="none" stroke="white" stroke-width="2"/>
+  <rect x="310" y="110" width="60" height="45" fill="#ecfdf5" opacity="0.9"/>
+  <line x1="325" y1="120" x2="355" y2="120" stroke="white" stroke-width="1.5" opacity="0.7"/>
+  <line x1="310" y1="160" x2="370" y2="160" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="315" y1="160" x2="318" y2="172" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="365" y1="160" x2="362" y2="172" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <g transform="translate(360, 145)">
+    <circle cx="0" cy="0" r="8" fill="white" opacity="0.3"/>
+    <path d="M-3 0 L2 4 L6 -2" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>

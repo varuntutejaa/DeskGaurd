@@ -1,0 +1,41 @@
+<svg width="400" height="400" viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg">
+  <title>Desk Guard Logo</title>
+  <desc>A modern logo for Desk Guard featuring a green shield with a desk and monitor silhouette</desc>
+  
+  <defs>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Shield outline -->
+  <path d="M340 50 L420 90 L420 160 Q420 200 340 230 Q260 200 260 160 L260 90 Z" 
+        fill="url(#greenGrad)" stroke="#047857" stroke-width="2" stroke-linejoin="round"/>
+  
+  <!-- Inner shield accent -->
+  <path d="M340 65 L405 100 L405 160 Q405 190 340 215 Q275 190 275 160 L275 100 Z" 
+        fill="none" stroke="#d1fae5" stroke-width="1.5" stroke-linejoin="round" opacity="0.6"/>
+  
+  <!-- Monitor/Screen -->
+  <rect x="305" y="105" width="70" height="55" rx="3" fill="none" stroke="white" stroke-width="2"/>
+  <rect x="310" y="110" width="60" height="45" fill="#ecfdf5" opacity="0.9"/>
+  
+  <!-- Screen shine/reflection -->
+  <line x1="325" y1="120" x2="355" y2="120" stroke="white" stroke-width="1.5" opacity="0.7"/>
+  
+  <!-- Desk base -->
+  <line x1="310" y1="160" x2="370" y2="160" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="315" y1="160" x2="318" y2="172" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="365" y1="160" x2="362" y2="172" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Checkmark accent (protection symbol) -->
+  <g transform="translate(360, 145)">
+    <circle cx="0" cy="0" r="8" fill="white" opacity="0.3"/>
+    <path d="M-3 0 L2 4 L6 -2" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Text: Desk Guard -->
+  <text x="340" y="260" font-family="Arial, sans-serif" font-size="24" font-weight="600" 
+        text-anchor="middle" fill="#047857">Desk Guard</text>
+</svg>
