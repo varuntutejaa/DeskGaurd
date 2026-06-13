@@ -327,6 +327,7 @@ export function SeatSidebar() {
   const seats          = useLibrary((s) => s.seats);
   const selectedId     = useLibrary((s) => s.selectedId);
   const mySeatId       = useLibrary((s) => s.mySeatId);
+  const select          = useLibrary((s) => s.select);
   const checkIn         = useLibrary((s) => s.checkIn);
   const checkOut        = useLibrary((s) => s.checkOut);
   const goAway          = useLibrary((s) => s.goAway);
@@ -356,7 +357,16 @@ export function SeatSidebar() {
             <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground">
               {isMine ? "Your Seat" : "Selected Seat"}
             </p>
-            <StatusBadge status={active.status} />
+            <div className="flex items-center gap-2">
+              <StatusBadge status={active.status} />
+              <button
+                onClick={() => select(null)}
+                className="grid h-6 w-6 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Close panel"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
           </div>
 
           <div className="mt-2.5 flex items-center gap-3.5">
