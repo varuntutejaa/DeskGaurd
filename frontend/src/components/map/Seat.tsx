@@ -146,7 +146,7 @@ function SeatBase({ seat, selected, mine, dimmed, onSelect, onHover }: SeatProps
             )}
             {/* seat ID */}
             <text x={0} y={1.5} textAnchor="middle"
-              fontSize={6.5} fontWeight={800} fill={color} fillOpacity={1}
+              fontSize={6.5} fontWeight={800} fill="#111" fillOpacity={1}
               letterSpacing={0.3}
               style={{ userSelect: "none", pointerEvents: "none", fontVariantNumeric: "tabular-nums" }}>
               {id}
@@ -215,8 +215,8 @@ function SeatBase({ seat, selected, mine, dimmed, onSelect, onHover }: SeatProps
               x={seated ? 2 : 0}
               y={(D_TOP + D_BOT) / 2 + 4}
               textAnchor="middle"
-              fontSize={7} fontWeight={700}
-              fill={color} fillOpacity={0.92}
+              fontSize={7} fontWeight={800}
+              fill="#111"
               letterSpacing={0.3}
               style={{ userSelect: "none", pointerEvents: "none", fontVariantNumeric: "tabular-nums" }}>
               {id}
