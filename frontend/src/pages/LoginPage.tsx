@@ -16,17 +16,18 @@ export function LoginPage() {
   const [error, setError]       = useState<string | null>(null);
   const [loading, setLoading]   = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
-    const user = validateCredentials(email, password);
+    const user = await validateCredentials(email, password);
     if (!user) {
       setError("Invalid email or password. Please try again.");
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
     setUser(user);
     const redirect = searchParams.get("redirect");
     setTimeout(() => {
@@ -34,10 +35,10 @@ export function LoginPage() {
     }, 600);
   };
 
-  const signInAs = (email: string, password: string) => {
-    const user = validateCredentials(email, password);
-    if (!user) return;
+  const signInAs = async (email: string, password: string) => {
     setLoading(true);
+    const user = await validateCredentials(email, password);
+    if (!user) { setLoading(false); return; }
     setUser(user);
     setTimeout(() => {
       navigate(user.role === "admin" ? "/dashboard" : "/library");

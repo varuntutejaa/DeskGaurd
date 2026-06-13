@@ -74,6 +74,7 @@ model Student {
   department String
   year       Int
   phone      String?
+  password   String?
   addedBy    String
   createdAt  DateTime @default(now())
 

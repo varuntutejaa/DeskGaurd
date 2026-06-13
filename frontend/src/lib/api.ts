@@ -68,10 +68,18 @@ export const api = {
       body: JSON.stringify({ seatNumber, issueType, description }),
     }),
 
+  /* ---- auth ---- */
+
+  login: (email: string, password: string) =>
+    request<{ email: string; role: "student" | "admin" }>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    }),
+
   /* ---- students ---- */
 
   getStudents: () => request<Student[]>("/students"),
-  addStudent: (data: Omit<Student, "id" | "createdAt">) =>
+  addStudent: (data: Omit<Student, "id" | "createdAt"> & { password: string }) =>
     request<Student>("/students", { method: "POST", body: JSON.stringify(data) }),
   deleteStudent: (id: string) =>
     request<{ deleted: boolean }>(`/students/${id}`, { method: "DELETE" }),

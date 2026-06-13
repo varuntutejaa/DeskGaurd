@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "./api";
 
 export type Role = "student" | "admin";
 
@@ -7,17 +8,12 @@ export interface AuthUser {
   role: Role;
 }
 
-/* ── Hardcoded user database ── */
-const USERS: { email: string; password: string; role: Role }[] = [
-  { email: "student@muj.manipal.edu", password: "1234567890", role: "student" },
-  { email: "admin@muj.manipal.edu",   password: "0987654321", role: "admin"   },
-];
-
-export function validateCredentials(email: string, password: string): AuthUser | null {
-  const match = USERS.find(
-    (u) => u.email === email.trim().toLowerCase() && u.password === password
-  );
-  return match ? { email: match.email, role: match.role } : null;
+export async function validateCredentials(email: string, password: string): Promise<AuthUser | null> {
+  try {
+    return await api.login(email, password);
+  } catch {
+    return null;
+  }
 }
 
 /* ── Session persistence ── */

@@ -8,12 +8,15 @@ export const listStudents = async (_req: Request, res: Response, next: NextFunct
 
 export const addStudent = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, email, studentId, department, year, phone, addedBy } = req.body as svc.CreateStudentInput;
-    if (!name || !email || !studentId || !department || !year || !addedBy) {
+    const { name, email, studentId, department, year, phone, password, addedBy } =
+      req.body as svc.CreateStudentInput;
+    if (!name || !email || !studentId || !department || !year || !password || !addedBy) {
       res.status(400).json({ error: "Missing required fields" });
       return;
     }
-    res.status(201).json(await svc.createStudent({ name, email, studentId, department, year: Number(year), phone, addedBy }));
+    res.status(201).json(
+      await svc.createStudent({ name, email, studentId, department, year: Number(year), phone, password, addedBy })
+    );
   } catch (err) { next(err); }
 };
 

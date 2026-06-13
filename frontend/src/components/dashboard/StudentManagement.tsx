@@ -30,6 +30,7 @@ const EMPTY_FORM = {
   department: "",
   year: 1,
   phone: "",
+  password: "",
 };
 
 export function StudentManagement() {
@@ -63,8 +64,12 @@ export function StudentManagement() {
     e.preventDefault();
     setFormError(null);
 
-    if (!form.name.trim() || !form.email.trim() || !form.studentId.trim() || !form.department) {
-      setFormError("Name, email, student ID and department are required.");
+    if (!form.name.trim() || !form.email.trim() || !form.studentId.trim() || !form.department || !form.password.trim()) {
+      setFormError("Name, email, student ID, department and password are required.");
+      return;
+    }
+    if (form.password.trim().length < 6) {
+      setFormError("Password must be at least 6 characters.");
       return;
     }
     if (!form.email.endsWith("@muj.manipal.edu")) {
@@ -81,6 +86,7 @@ export function StudentManagement() {
         department: form.department,
         year: Number(form.year),
         phone: form.phone.trim() || undefined,
+        password: form.password.trim(),
         addedBy: user?.email ?? "admin",
       });
       setStudents((prev) => [created, ...prev]);
@@ -167,6 +173,16 @@ export function StudentManagement() {
                   placeholder="+91 9876543210"
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                />
+              </Field>
+
+              <Field label="Password" required>
+                <input
+                  className="input-base"
+                  type="password"
+                  placeholder="Min. 6 characters"
+                  value={form.password}
+                  onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                 />
               </Field>
 
