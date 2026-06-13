@@ -29,6 +29,10 @@ export interface ApiSeat {
   zone: string;
   hasChargingPort: boolean;
   createdAt: string;
+  /** Server-computed seconds the session has been active. */
+  occupiedForSec: number;
+  /** Server-computed seconds remaining before an AWAY seat is marked abandoned. */
+  awayRemainingSec: number;
   activeSession: ApiSession | null;
 }
 

@@ -53,6 +53,11 @@ export function SeatQR({ seatId }: { seatId: string }) {
         <div className="border-t border-border bg-muted/40 px-3.5 py-2 text-center text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
           Placed on Desk {seatId} · Main Library
         </div>
+
+        {/* demo disclaimer */}
+        <div className="border-t border-amber-200 bg-amber-50 px-3.5 py-2 text-center text-[10px] leading-snug text-amber-700">
+          ⚠️ <span className="font-semibold">Demo only.</span> In production, this QR tag is physically placed on the desk. Students scan it with their phone to check in.
+        </div>
       </div>
 
       {/* demo-only fallback for presenting without a phone */}

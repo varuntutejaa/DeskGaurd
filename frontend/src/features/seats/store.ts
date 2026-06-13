@@ -23,7 +23,6 @@ const DEFAULT_FILTERS: Filters = {
   type: "all",
 };
 
-const AWAY_LIMIT = 20 * 60; // seconds, matches backend away timeout
 
 const STATUS_MAP: Record<ApiSeatStatus, SeatStatus> = {
   FREE: "available",
@@ -59,40 +58,23 @@ const persistMySeat = (id: string | null) => {
   }
 };
 
-/** Merge backend seat data with the frontend spatial layout. */
-function mapSeat(raw: ApiSeat, nowMs: number): Seat | null {
+/** Merge backend seat data with the frontend spatial layout.
+ *  Duration values come pre-computed from the server — no client clock needed. */
+function mapSeat(raw: ApiSeat): Seat | null {
   const pos = LAYOUT[raw.seatNumber];
-  if (!pos) return null; // unknown seat — skip rather than draw it off-plan
-
-  const status = STATUS_MAP[raw.status];
-  const session = raw.activeSession;
-
-  let occupiedFor = 0;
-  let awayRemaining = 0;
-  if (session) {
-    occupiedFor = Math.max(
-      0,
-      Math.floor((nowMs - new Date(session.checkedInAt).getTime()) / 1000)
-    );
-    if (status === "away" && session.awayStartedAt) {
-      const awayFor = Math.floor(
-        (nowMs - new Date(session.awayStartedAt).getTime()) / 1000
-      );
-      awayRemaining = Math.max(0, AWAY_LIMIT - awayFor);
-    }
-  }
+  if (!pos) return null;
 
   return {
     id: raw.seatNumber,
     type: TYPE_MAP[raw.seatType],
-    status,
+    status: STATUS_MAP[raw.status],
     zone: raw.zone as ZoneId,
     hasCharging: raw.hasChargingPort,
     amenity: pos.amenity,
     x: pos.x,
     y: pos.y,
-    occupiedFor,
-    awayRemaining,
+    occupiedFor:   raw.occupiedForSec   ?? 0,
+    awayRemaining: raw.awayRemainingSec ?? 0,
   };
 }
 
@@ -134,9 +116,8 @@ export const useLibrary = create<LibraryState>((set, get) => ({
   fetchSeats: async () => {
     try {
       const raw = await api.getSeats();
-      const now = Date.now();
       const seats = raw
-        .map((r) => mapSeat(r, now))
+        .map((r) => mapSeat(r))
         .filter((s): s is Seat => s !== null);
 
       // reconcile "my seat": clear if the session no longer holds it
@@ -161,17 +142,10 @@ export const useLibrary = create<LibraryState>((set, get) => ({
   },
 
   recompute: () => {
+    // Offline/fallback mode only — tick local timers when there's no backend.
+    // In backend mode, durations come from the server on every poll; no tick needed.
     const { raw } = get();
-    if (raw.length) {
-      // Backend mode: recompute from server data
-      const now = Date.now();
-      const seats = raw
-        .map((r) => mapSeat(r, now))
-        .filter((s): s is Seat => s !== null);
-      set({ seats });
-      return;
-    }
-    // Offline mode: tick session timers every second
+    if (raw.length) return;
     set((s) => ({
       seats: s.seats.map((seat) => {
         if (seat.status === "occupied") {
@@ -215,7 +189,7 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     set((s) => ({
       seats: s.seats.map((seat) =>
         seat.id === seatNumber
-          ? { ...seat, status: "away" as SeatStatus, awayRemaining: AWAY_LIMIT }
+          ? { ...seat, status: "away" as SeatStatus, awayRemaining: 20 * 60 }
           : seat
       ),
     }));

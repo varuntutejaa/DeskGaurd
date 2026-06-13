@@ -2,11 +2,33 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../prisma/client.js";
 import { conflict, notFound } from "./errors.js";
 
-/** Seat with its single active session (if any) flattened for the API. */
+const AWAY_LIMIT_SEC = 20 * 60; // must match frontend constant
+
+/** Seat with its single active session (if any) flattened for the API.
+ *  Duration fields are computed server-side so the browser never needs a
+ *  local clock tick — it just displays whatever the server sends. */
 function serialize(
   seat: Prisma.SeatGetPayload<{ include: { sessions: true } }>
 ) {
   const active = seat.sessions.find((s) => s.isActive) ?? null;
+  const nowMs  = Date.now();
+
+  let occupiedForSec   = 0;
+  let awayRemainingSec = 0;
+
+  if (active) {
+    occupiedForSec = Math.max(
+      0,
+      Math.floor((nowMs - active.checkedInAt.getTime()) / 1000)
+    );
+    if (seat.status === "AWAY" && active.awayStartedAt) {
+      const awayFor = Math.floor(
+        (nowMs - active.awayStartedAt.getTime()) / 1000
+      );
+      awayRemainingSec = Math.max(0, AWAY_LIMIT_SEC - awayFor);
+    }
+  }
+
   return {
     id: seat.id,
     seatNumber: seat.seatNumber,
@@ -15,6 +37,8 @@ function serialize(
     zone: seat.zone,
     hasChargingPort: seat.hasChargingPort,
     createdAt: seat.createdAt,
+    occupiedForSec,
+    awayRemainingSec,
     activeSession: active
       ? {
           id: active.id,

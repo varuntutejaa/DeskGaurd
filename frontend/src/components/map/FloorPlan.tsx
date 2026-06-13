@@ -230,25 +230,37 @@ function Bookshelves() {
 }
 
 function CubicleExtraShelves() {
-  const leftShelves = [
-    { x: 62,  y: 802, w: 142, h: 17, idx: 20 },
-    { x: 238, y: 802, w: 142, h: 17, idx: 21 },
+  // Row 1 (existing)
+  const row1Left  = [
+    { x: 62,   y: 800, w: 142, h: 17, idx: 20 },
+    { x: 238,  y: 800, w: 142, h: 17, idx: 21 },
   ];
-  const rightShelves = [
-    { x: 876, y: 802, w: 142, h: 17, idx: 22 },
-    { x: 1052, y: 802, w: 142, h: 17, idx: 23 },
+  const row1Right = [
+    { x: 876,  y: 800, w: 142, h: 17, idx: 22 },
+    { x: 1052, y: 800, w: 142, h: 17, idx: 23 },
   ];
-  const all = [...leftShelves, ...rightShelves];
+  // Row 2 (new — one extra shelf per side)
+  const row2Left  = [
+    { x: 62,   y: 826, w: 142, h: 17, idx: 24 },
+    { x: 238,  y: 826, w: 142, h: 17, idx: 25 },
+  ];
+  const row2Right = [
+    { x: 876,  y: 826, w: 142, h: 17, idx: 26 },
+    { x: 1052, y: 826, w: 142, h: 17, idx: 27 },
+  ];
+  const all = [...row1Left, ...row1Right, ...row2Left, ...row2Right];
+
   return (
     <g>
-      <rect x={52} y={793} width={358} height={56} rx={6} fill={C.floorShelf} opacity={0.7} />
-      <rect x={870} y={793} width={358} height={56} rx={6} fill={C.floorShelf} opacity={0.7} />
+      {/* tinted shelf area backgrounds — taller to cover both rows */}
+      <rect x={52}  y={792} width={358} height={64} rx={6} fill={C.floorShelf} opacity={0.72} />
+      <rect x={870} y={792} width={358} height={64} rx={6} fill={C.floorShelf} opacity={0.72} />
       {all.map(({ x, y, w, h, idx }) => (
         <Shelf key={idx} rect={{ x, y, w, h }} idx={idx} />
       ))}
-      <text x={231} y={860} textAnchor="middle" fontSize={7.5} fontWeight={700}
+      <text x={231}  y={865} textAnchor="middle" fontSize={7.5} fontWeight={700}
         fill={C.labelShelf} letterSpacing="0.07em" opacity={0.7}>REFERENCE BOOKS</text>
-      <text x={1049} y={860} textAnchor="middle" fontSize={7.5} fontWeight={700}
+      <text x={1049} y={865} textAnchor="middle" fontSize={7.5} fontWeight={700}
         fill={C.labelShelf} letterSpacing="0.07em" opacity={0.7}>REFERENCE BOOKS</text>
     </g>
   );
@@ -605,19 +617,6 @@ function ReceptionDesk() {
       <rect x={x + r} y={y + 1} width={w - r * 2} height={3} rx={1.5}
         fill="rgba(255,255,255,0.70)" />
 
-      {/* monitor screens */}
-      {[cx - 52, cx + 24].map((mx, i) => (
-        <g key={i}>
-          <rect x={mx} y={y + 7} width={24} height={16} rx={3.5}
-            fill={C.recepAccent} fillOpacity={0.25} stroke={C.recepStroke} strokeWidth={0.9} />
-          {/* screen glow */}
-          <rect x={mx + 2} y={y + 9} width={20} height={11} rx={2}
-            fill={C.recepAccent} fillOpacity={0.12} />
-          {/* screen stand */}
-          <rect x={mx + 10} y={y + 23} width={4} height={4} rx={1}
-            fill={C.recepStroke} fillOpacity={0.45} />
-        </g>
-      ))}
 
       {/* label */}
       <text x={cx} y={y + h / 2 + 6} textAnchor="middle"
@@ -656,8 +655,8 @@ function EntranceArch() {
       <line x1={x}     y1={y - 4} x2={x}     y2={y + 4} stroke={C.wall} strokeWidth={4} />
       <line x1={x + w} y1={y - 4} x2={x + w} y2={y + 4} stroke={C.wall} strokeWidth={4} />
 
-      {/* entrance label */}
-      <text x={cx} y={y + 28} textAnchor="middle"
+      {/* entrance label — sits outside the building, centred on the gap */}
+      <text x={cx} y={y - 10} textAnchor="middle"
         fontSize={11} fontWeight={800} letterSpacing="0.09em" fill={C.labelMuted}
         style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
         ▲  MAIN ENTRANCE
@@ -723,31 +722,59 @@ function OpenZoneBackground({ room }: { room: RoomDef }) {
 ───────────────────────────────────────────────────────────────────────────── */
 function MapLegend() {
   const items = [
-    { label: "Available",    color: "hsl(158 55% 64%)" },
-    { label: "Occupied",     color: "hsl(0 68% 64%)"   },
-    { label: "Away",         color: "hsl(38 88% 62%)"  },
-    { label: "Abandoned",    color: "hsl(210 14% 62%)" },
-    { label: "Maintenance",  color: "hsl(210 68% 60%)" },
+    { label: "Available",   color: "hsl(158 55% 64%)" },
+    { label: "Occupied",    color: "hsl(0 68% 64%)"   },
+    { label: "Away",        color: "hsl(38 88% 62%)"  },
+    { label: "Abandoned",   color: "hsl(210 14% 62%)" },
+    { label: "Maintenance", color: "hsl(210 68% 60%)" },
   ];
-  const itemW  = 88;
-  const totalW = itemW * items.length + 16;
-  const x      = BUILDING.x + BUILDING.w / 2 - totalW / 2;
-  const y      = BUILDING.y + BUILDING.h - 28;
+
+  const padX   = 14;   // horizontal padding inside pill
+  const padY   = 8;    // vertical padding inside pill
+  const dotR   = 4.5;
+  const gap    = 6;    // gap between dot and label
+  const sep    = 18;   // gap between items
+  const fSize  = 8;
+  const chW    = fSize * 0.52; // approximate char width
+
+  // measure each item: dot diameter + gap + text width
+  const itemWidths = items.map((it) => dotR * 2 + gap + it.label.length * chW);
+  const totalInner = itemWidths.reduce((a, b) => a + b, 0) + sep * (items.length - 1);
+  const totalW     = totalInner + padX * 2;
+  const pillH      = dotR * 2 + padY * 2;
+
+  const cx = BUILDING.x + BUILDING.w / 2;
+  const py = BUILDING.y + BUILDING.h - pillH - 10; // 10px above the bottom wall
+
+  let curX = cx - totalW / 2 + padX;
 
   return (
     <g>
+      {/* pill shadow */}
+      <rect x={cx - totalW / 2 + 1} y={py + 2} width={totalW} height={pillH}
+        rx={pillH / 2} fill="rgba(0,0,0,0.06)" />
       {/* pill background */}
-      <rect x={x} y={y - 10} width={totalW} height={22} rx={11}
-        fill="rgba(255,255,255,0.88)" stroke="rgba(0,0,0,0.08)" strokeWidth={1} />
-      {/* items */}
-      {items.map((item, i) => (
-        <g key={item.label} transform={`translate(${x + 10 + i * itemW}, ${y + 1})`}>
-          <circle cx={6} cy={0} r={4} fill={item.color} />
-          <text x={14} y={4} fontSize={7.5} fontWeight={600} fill={C.labelMuted} letterSpacing="0.03em">
-            {item.label}
-          </text>
-        </g>
-      ))}
+      <rect x={cx - totalW / 2} y={py} width={totalW} height={pillH}
+        rx={pillH / 2} fill="rgba(255,255,255,0.92)" stroke="rgba(0,0,0,0.09)" strokeWidth={1} />
+
+      {/* items — laid out left-to-right with measured widths */}
+      {items.map((item, i) => {
+        const ix = curX;
+        curX += itemWidths[i] + sep;
+        return (
+          <g key={item.label}>
+            <circle cx={ix + dotR} cy={py + pillH / 2} r={dotR} fill={item.color} />
+            <text
+              x={ix + dotR * 2 + gap}
+              y={py + pillH / 2 + fSize * 0.36}
+              fontSize={fSize} fontWeight={600}
+              fill={C.labelMuted} letterSpacing="0.02em"
+            >
+              {item.label}
+            </text>
+          </g>
+        );
+      })}
     </g>
   );
 }
