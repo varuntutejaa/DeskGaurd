@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LogIn, LogOut, Coffee, Flag, Zap,
   MapPin, Armchair, Undo2, CircleCheck,
   BookOpen, Users, Clock, Activity,
+  Armchair as ChairIcon, Sparkles, ZapOff, X, Send, AlertTriangle,
 } from "lucide-react";
 import { useLibrary, countByStatus } from "@/features/seats/store";
 import {
@@ -226,6 +228,99 @@ function Metric({ label, value, muted }: { label: string; value: string; muted?:
 }
 
 /* -------------------------------------------------------------------------
+   Issue type picker
+   ------------------------------------------------------------------------- */
+const ISSUE_TYPES = [
+  { id: "CHAIR_BROKEN",           label: "Chair Broken",               icon: ChairIcon,  desc: "Damaged or unstable chair" },
+  { id: "DIRTY_SPACE",            label: "Dirty Space",                icon: Sparkles,   desc: "Area needs cleaning" },
+  { id: "CHARGING_NOT_WORKING",   label: "Charging Socket Not Working", icon: ZapOff,     desc: "Port is dead or damaged" },
+] as const;
+
+function IssueTypePicker({
+  seatId,
+  onClose,
+}: {
+  seatId: string;
+  onClose: () => void;
+}) {
+  const reportIssue = useLibrary((s) => s.reportIssue);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+
+  const submit = () => {
+    if (!selected) return;
+    reportIssue(seatId, selected);
+    setSubmitted(true);
+    setTimeout(onClose, 1400);
+  };
+
+  if (submitted) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col items-center gap-2 rounded-xl border border-border bg-muted/40 p-5 text-center"
+      >
+        <span className="grid h-10 w-10 place-items-center rounded-full bg-status-available/15 text-status-available">
+          <CircleCheck className="size-5" />
+        </span>
+        <p className="text-[13px] font-semibold">Report submitted</p>
+        <p className="text-[12px] text-muted-foreground">The admin will review and take action.</p>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-xl border border-border bg-muted/30 p-3.5 space-y-3"
+    >
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+          What's the issue?
+        </p>
+        <button onClick={onClose} className="rounded p-0.5 text-muted-foreground hover:text-foreground">
+          <X className="size-3.5" />
+        </button>
+      </div>
+
+      <div className="space-y-1.5">
+        {ISSUE_TYPES.map((it) => (
+          <button
+            key={it.id}
+            onClick={() => setSelected(it.id)}
+            className={`w-full flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left text-[12.5px] transition-colors ${
+              selected === it.id
+                ? "border-primary/40 bg-primary-soft/50 text-foreground"
+                : "border-border bg-background/60 text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            <it.icon className={`size-3.5 shrink-0 ${selected === it.id ? "text-primary" : ""}`} />
+            <div>
+              <p className={`font-medium leading-tight ${selected === it.id ? "text-foreground" : ""}`}>
+                {it.label}
+              </p>
+              <p className="text-[11px] opacity-70">{it.desc}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <Button
+        size="sm"
+        className="w-full"
+        disabled={!selected}
+        onClick={submit}
+      >
+        <Send className="size-3.5" />
+        Submit Report
+      </Button>
+    </motion.div>
+  );
+}
+
+/* -------------------------------------------------------------------------
    Main sidebar
    ------------------------------------------------------------------------- */
 export function SeatSidebar() {
@@ -236,7 +331,8 @@ export function SeatSidebar() {
   const checkOut        = useLibrary((s) => s.checkOut);
   const goAway          = useLibrary((s) => s.goAway);
   const confirmPresence = useLibrary((s) => s.confirmPresence);
-  const reportIssue     = useLibrary((s) => s.reportIssue);
+
+  const [showIssuePicker, setShowIssuePicker] = useState(false);
 
   const mySeat   = seats.find((s) => s.id === mySeatId) ?? null;
   const selected = seats.find((s) => s.id === selectedId) ?? null;
@@ -244,10 +340,11 @@ export function SeatSidebar() {
 
   if (!active) return <LibraryOverview />;
 
-  const isMine      = active.id === mySeatId;
-  const canCheckIn  = !isMine && active.status === "available";
-  const away        = isMine && active.status === "away";
-  const statusMeta  = STATUS_META[active.status];
+  const isMine         = active.id === mySeatId;
+  const alreadyHasSeat = !!mySeatId && !isMine;
+  const canCheckIn     = !isMine && !alreadyHasSeat && active.status === "available";
+  const away           = isMine && active.status === "away";
+  const statusMeta     = STATUS_META[active.status];
 
   return (
     <div className="flex h-full flex-col">
@@ -280,6 +377,16 @@ export function SeatSidebar() {
           </div>
         </div>
 
+        {/* ── already-holding-a-seat warning ───────────────────────── */}
+        {alreadyHasSeat && active.status === "available" && (
+          <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-[12px]">
+            <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
+            <p className="text-amber-700">
+              You're already checked in to <span className="font-mono font-semibold">{mySeatId}</span>. Check out first before claiming another seat.
+            </p>
+          </div>
+        )}
+
         {/* ── seat details card ────────────────────────────────────── */}
         <InfoCard seat={active} />
 
@@ -310,6 +417,16 @@ export function SeatSidebar() {
 
         {/* ── QR code for available selected seat ──────────────────── */}
         {canCheckIn && <SeatQR seatId={active.id} />}
+
+        {/* ── issue picker ─────────────────────────────────────────── */}
+        <AnimatePresence>
+          {showIssuePicker && (
+            <IssueTypePicker
+              seatId={active.id}
+              onClose={() => setShowIssuePicker(false)}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ── action buttons ───────────────────────────────────────── */}
@@ -349,14 +466,16 @@ export function SeatSidebar() {
           </div>
         )}
 
-        <Button
-          variant="ghost"
-          className="w-full text-muted-foreground hover:text-status-occupied"
-          onClick={() => reportIssue(active.id)}
-        >
-          <Flag className="size-4" />
-          Report an Issue
-        </Button>
+        {!showIssuePicker && (
+          <Button
+            variant="ghost"
+            className="w-full text-muted-foreground hover:text-status-occupied"
+            onClick={() => setShowIssuePicker(true)}
+          >
+            <Flag className="size-4" />
+            Report an Issue
+          </Button>
+        )}
       </div>
     </div>
   );

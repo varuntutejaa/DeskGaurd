@@ -56,6 +56,12 @@ export function CheckInPage() {
   const [busy, setBusy] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
+  // Prevent occupying multiple seats
+  const existingSeatId = (() => {
+    try { return localStorage.getItem("deskguard.mySeat"); } catch { return null; }
+  })();
+  const alreadyHasSeat = !!existingSeatId && existingSeatId !== seatId;
+
   const status: SeatStatus = seat ? STATUS_MAP[seat.status] : "available";
   const away = status === "away";
 
@@ -189,7 +195,19 @@ export function CheckInPage() {
 
               {/* READY → requires sign-in + an unoccupied seat */}
               {phase === "ready" && status === "available" && (
-                user ? (
+                alreadyHasSeat ? (
+                  <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-center text-[13px]">
+                    <p className="font-semibold text-amber-800">You already have a seat</p>
+                    <p className="mt-1 text-amber-700">
+                      You're checked in to{" "}
+                      <span className="font-mono font-semibold">{existingSeatId}</span>.
+                      Check out of your current seat before claiming a new one.
+                    </p>
+                    <Button variant="secondary" className="mt-3 w-full" asChild>
+                      <Link to="/library">Go to live map</Link>
+                    </Button>
+                  </div>
+                ) : user ? (
                   <Button
                     className="mt-4 w-full"
                     size="lg"

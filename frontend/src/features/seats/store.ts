@@ -101,7 +101,7 @@ interface LibraryState {
   goAway: () => void;
   confirmPresence: () => void;
   checkOut: () => void;
-  reportIssue: (seatNumber: string) => void;
+  reportIssue: (seatNumber: string, issueType: string) => void;
 }
 
 export const useLibrary = create<LibraryState>((set, get) => ({
@@ -224,18 +224,11 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     api.checkOut(seatNumber).then(() => get().fetchSeats()).catch(() => {});
   },
 
-  reportIssue: (seatNumber) => {
-    const isMySeat = get().mySeatId === seatNumber;
-    if (isMySeat) persistMySeat(null);
-    set((s) => ({
-      mySeatId: isMySeat ? null : s.mySeatId,
-      seats: s.seats.map((seat) =>
-        seat.id === seatNumber
-          ? { ...seat, status: "maintenance" as SeatStatus }
-          : seat
-      ),
-    }));
-    api.reportIssue(seatNumber, "OTHER").then(() => get().fetchSeats()).catch(() => {});
+  reportIssue: (seatNumber, issueType) => {
+    // Report is submitted; seat status does NOT change until admin approves.
+    api.reportIssue(seatNumber, issueType)
+      .then(() => get().fetchSeats())
+      .catch(() => {});
   },
 }));
 

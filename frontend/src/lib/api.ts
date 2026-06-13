@@ -72,6 +72,12 @@ export const api = {
       body: JSON.stringify({ seatNumber, issueType, description }),
     }),
 
+  approveIssue: (id: string) =>
+    request<{ approved: boolean; seatNumber: string }>(`/issues/${id}/approve`, { method: "PATCH" }),
+
+  dismissIssue: (id: string) =>
+    request<{ dismissed: boolean }>(`/issues/${id}/dismiss`, { method: "PATCH" }),
+
   /* ---- auth ---- */
 
   login: (email: string, password: string) =>

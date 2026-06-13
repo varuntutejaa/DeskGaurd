@@ -20,6 +20,7 @@ import { ZoneUtilizationChart } from "@/components/dashboard/ZoneUtilizationChar
 import { IssueReportsChart } from "@/components/dashboard/IssueReportsChart";
 import { DataTables } from "@/components/dashboard/DataTables";
 import { StudentManagement } from "@/components/dashboard/StudentManagement";
+import { IssueApprovals } from "@/components/dashboard/IssueApprovals";
 
 function Clock() {
   const [now, setNow] = useState(() => new Date());
@@ -138,6 +139,8 @@ export function DashboardPage() {
                   <DataTables sessions={sessions} issues={issues} flagged={flagged} />
                 </div>
               </div>
+
+              <IssueApprovals />
 
               <StudentManagement />
             </>
