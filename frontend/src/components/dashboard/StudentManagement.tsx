@@ -33,7 +33,7 @@ const EMPTY_FORM = {
 };
 
 export function StudentManagement() {
-  const { user } = useAuth();
+  const user = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,7 +112,7 @@ export function StudentManagement() {
       action={
         <Button
           size="sm"
-          variant={showForm ? "secondary" : "default"}
+          variant={showForm ? "secondary" : "primary"}
           onClick={() => {
             setShowForm((v) => !v);
             setFormError(null);
