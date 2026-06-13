@@ -42,6 +42,7 @@ model Session {
   id              String    @id @default(cuid())
   seatId          String
   seat            Seat      @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  studentEmail    String?
   checkedInAt     DateTime  @default(now())
   awayStartedAt   DateTime?
   lastConfirmedAt DateTime  @default(now())
@@ -50,6 +51,7 @@ model Session {
 
   @@index([seatId])
   @@index([isActive])
+  @@index([studentEmail, isActive])
 }
 
 model IssueReport {

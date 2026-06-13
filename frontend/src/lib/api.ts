@@ -5,6 +5,16 @@
 
 const BASE = import.meta.env.VITE_API_URL ?? "";
 
+function getStoredEmail(): string | undefined {
+  try {
+    const raw = localStorage.getItem("deskguard.auth");
+    if (!raw) return undefined;
+    return (JSON.parse(raw) as { email?: string }).email;
+  } catch {
+    return undefined;
+  }
+}
+
 export type ApiSeatStatus =
   | "FREE"
   | "OCCUPIED"
@@ -54,8 +64,13 @@ const seatPath = (seatNumber: string) =>
 export const api = {
   getSeats: () => request<ApiSeat[]>("/seats"),
 
-  checkIn: (seatNumber: string) =>
-    request<ApiSeat>(`${seatPath(seatNumber)}/checkin`, { method: "POST" }),
+  checkIn: (seatNumber: string) => {
+    const email = getStoredEmail();
+    return request<ApiSeat>(`${seatPath(seatNumber)}/checkin`, {
+      method: "POST",
+      headers: email ? { "Content-Type": "application/json", "x-user-email": email } : undefined,
+    });
+  },
 
   away: (seatNumber: string) =>
     request<ApiSeat>(`${seatPath(seatNumber)}/away`, { method: "POST" }),

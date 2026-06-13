@@ -23,7 +23,6 @@ const DEFAULT_FILTERS: Filters = {
   type: "all",
 };
 
-
 const STATUS_MAP: Record<ApiSeatStatus, SeatStatus> = {
   FREE: "available",
   OCCUPIED: "occupied",
@@ -43,27 +42,18 @@ const LAYOUT = buildLayout();
 const MY_SEAT_KEY = "deskguard.mySeat";
 
 const loadMySeat = () => {
-  try {
-    return localStorage.getItem(MY_SEAT_KEY);
-  } catch {
-    return null;
-  }
+  try { return localStorage.getItem(MY_SEAT_KEY); } catch { return null; }
 };
 const persistMySeat = (id: string | null) => {
   try {
     if (id) localStorage.setItem(MY_SEAT_KEY, id);
     else localStorage.removeItem(MY_SEAT_KEY);
-  } catch {
-    /* ignore */
-  }
+  } catch { /* ignore */ }
 };
 
-/** Merge backend seat data with the frontend spatial layout.
- *  Duration values come pre-computed from the server — no client clock needed. */
 function mapSeat(raw: ApiSeat): Seat | null {
   const pos = LAYOUT[raw.seatNumber];
   if (!pos) return null;
-
   return {
     id: raw.seatNumber,
     type: TYPE_MAP[raw.seatType],
@@ -83,20 +73,20 @@ interface LibraryState {
   seats: Seat[];
   selectedId: string | null;
   mySeatId: string | null;
+  /** Seat currently being checked in (inflight API call). Prevents
+   *  reconciliation from clearing mySeatId before the server confirms. */
+  _pendingCheckIn: string | null;
   filters: Filters;
   loading: boolean;
   error: string | null;
 
-  /* data */
   fetchSeats: () => Promise<void>;
   recompute: () => void;
 
-  /* selection + filters */
   select: (id: string | null) => void;
   setFilter: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
   resetFilters: () => void;
 
-  /* session actions — optimistic-local, background API sync */
   checkIn: (seatNumber: string) => void;
   goAway: () => void;
   confirmPresence: () => void;
@@ -109,6 +99,7 @@ export const useLibrary = create<LibraryState>((set, get) => ({
   seats: FALLBACK_SEATS,
   selectedId: null,
   mySeatId: loadMySeat(),
+  _pendingCheckIn: null,
   filters: DEFAULT_FILTERS,
   loading: true,
   error: null,
@@ -120,11 +111,12 @@ export const useLibrary = create<LibraryState>((set, get) => ({
         .map((r) => mapSeat(r))
         .filter((s): s is Seat => s !== null);
 
-      // reconcile "my seat": clear if the session no longer holds it
+      // Reconcile mySeatId — but never clear it while a check-in is inflight.
+      const { _pendingCheckIn } = get();
       let mySeatId = get().mySeatId;
-      if (mySeatId) {
+      if (mySeatId && mySeatId !== _pendingCheckIn) {
         const mine = seats.find((s) => s.id === mySeatId);
-        if (!mine || (mine.status !== "occupied" && mine.status !== "away")) {
+        if (!mine || (mine.status !== "occupied" && mine.status !== "away" && mine.status !== "abandoned")) {
           mySeatId = null;
           persistMySeat(null);
         }
@@ -132,7 +124,6 @@ export const useLibrary = create<LibraryState>((set, get) => ({
 
       set({ raw, seats, mySeatId, loading: false, error: null });
     } catch {
-      // Only reset to fallback on the very first load (seats still empty)
       set((s) => ({
         seats: s.seats.length ? s.seats : FALLBACK_SEATS,
         loading: false,
@@ -141,14 +132,12 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     }
   },
 
+  // Always ticks local timers every second — keeps the display smooth between
+  // 3-second server polls. Server values reset the baseline on each poll.
   recompute: () => {
-    // Offline/fallback mode only — tick local timers when there's no backend.
-    // In backend mode, durations come from the server on every poll; no tick needed.
-    const { raw } = get();
-    if (raw.length) return;
     set((s) => ({
       seats: s.seats.map((seat) => {
-        if (seat.status === "occupied") {
+        if (seat.status === "occupied" || seat.status === "abandoned") {
           return { ...seat, occupiedFor: seat.occupiedFor + 1 };
         }
         if (seat.status === "away") {
@@ -169,18 +158,38 @@ export const useLibrary = create<LibraryState>((set, get) => ({
   resetFilters: () => set({ filters: DEFAULT_FILTERS }),
 
   checkIn: (seatNumber) => {
+    // Optimistic update + lock reconciliation until the API confirms
     persistMySeat(seatNumber);
     set((s) => ({
       mySeatId: seatNumber,
       selectedId: seatNumber,
+      _pendingCheckIn: seatNumber,
       seats: s.seats.map((seat) =>
         seat.id === seatNumber
           ? { ...seat, status: "occupied" as SeatStatus, occupiedFor: 0 }
           : seat
       ),
     }));
-    // Background sync — doesn't block UI
-    api.checkIn(seatNumber).then(() => get().fetchSeats()).catch(() => {});
+
+    api.checkIn(seatNumber)
+      .then(() => {
+        set({ _pendingCheckIn: null });
+        get().fetchSeats();
+      })
+      .catch((err: unknown) => {
+        // Rollback: the check-in was rejected (seat taken, or already have one)
+        const msg = err instanceof Error ? err.message : "Check-in failed";
+        persistMySeat(null);
+        set((s) => ({
+          _pendingCheckIn: null,
+          mySeatId: null,
+          error: msg,
+          seats: s.seats.map((seat) =>
+            seat.id === seatNumber ? { ...seat, status: "available" as SeatStatus } : seat
+          ),
+        }));
+        get().fetchSeats();
+      });
   },
 
   goAway: () => {
@@ -193,7 +202,9 @@ export const useLibrary = create<LibraryState>((set, get) => ({
           : seat
       ),
     }));
-    api.away(seatNumber).then(() => get().fetchSeats()).catch(() => {});
+    api.away(seatNumber)
+      .then(() => get().fetchSeats())
+      .catch(() => get().fetchSeats()); // re-sync on error too
   },
 
   confirmPresence: () => {
@@ -206,7 +217,9 @@ export const useLibrary = create<LibraryState>((set, get) => ({
           : seat
       ),
     }));
-    api.confirm(seatNumber).then(() => get().fetchSeats()).catch(() => {});
+    api.confirm(seatNumber)
+      .then(() => get().fetchSeats())
+      .catch(() => get().fetchSeats());
   },
 
   checkOut: () => {
@@ -215,17 +228,22 @@ export const useLibrary = create<LibraryState>((set, get) => ({
     persistMySeat(null);
     set((s) => ({
       mySeatId: null,
+      selectedId: null,
       seats: s.seats.map((seat) =>
         seat.id === seatNumber
           ? { ...seat, status: "available" as SeatStatus, occupiedFor: 0 }
           : seat
       ),
     }));
-    api.checkOut(seatNumber).then(() => get().fetchSeats()).catch(() => {});
+    api.checkOut(seatNumber)
+      .then(() => get().fetchSeats())
+      .catch(() => {
+        // Re-fetch to restore true server state on error
+        get().fetchSeats();
+      });
   },
 
   reportIssue: (seatNumber, issueType) => {
-    // Report is submitted; seat status does NOT change until admin approves.
     api.reportIssue(seatNumber, issueType)
       .then(() => get().fetchSeats())
       .catch(() => {});

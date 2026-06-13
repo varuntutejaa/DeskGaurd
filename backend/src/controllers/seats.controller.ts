@@ -22,7 +22,15 @@ export const getSeats: Handler = async (_req, res, next) => {
   }
 };
 
-export const checkin = wrap(seatsService.checkIn);
+export const checkin: Handler = async (req, res, next) => {
+  try {
+    const studentEmail = (req.headers["x-user-email"] as string | undefined) || undefined;
+    const result = await seatsService.checkIn(req.params.seatId, studentEmail);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
 export const away = wrap(seatsService.goAway);
 export const confirm = wrap(seatsService.confirm);
 export const checkout = wrap(seatsService.checkOut);

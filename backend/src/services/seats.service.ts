@@ -67,8 +67,22 @@ export async function getAllSeats() {
   return seats.map(serialize);
 }
 
-/** POST /checkin — seat must be FREE; opens an active session, seat → OCCUPIED. */
-export async function checkIn(seatNumber: string) {
+/** POST /checkin — seat must be FREE; opens an active session, seat → OCCUPIED.
+ *  If studentEmail is provided, also enforces one-active-session-per-student. */
+export async function checkIn(seatNumber: string, studentEmail?: string) {
+  // Server-side multi-seat guard
+  if (studentEmail) {
+    const existing = await prisma.session.findFirst({
+      where: { studentEmail, isActive: true },
+      include: { seat: { select: { seatNumber: true } } },
+    });
+    if (existing) {
+      throw conflict(
+        `You already have an active session at seat ${existing.seat.seatNumber}. Check out first.`
+      );
+    }
+  }
+
   const seat = await getSeatBySeatNumber(seatNumber);
   if (seat.status !== "FREE") {
     throw conflict(`Seat ${seatNumber} is not free (currently ${seat.status})`);
@@ -84,6 +98,7 @@ export async function checkIn(seatNumber: string) {
     prisma.session.create({
       data: {
         seatId: seat.id,
+        studentEmail: studentEmail ?? null,
         checkedInAt: now,
         lastConfirmedAt: now,
         isActive: true,

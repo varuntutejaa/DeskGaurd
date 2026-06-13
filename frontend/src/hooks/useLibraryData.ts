@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLibrary } from "@/features/seats/store";
 
-const POLL_MS = 5000; // refetch seats from backend
+const POLL_MS = 3000; // refetch seats from backend
 const CLOCK_MS = 1000; // recompute live durations between fetches
 
 /**
