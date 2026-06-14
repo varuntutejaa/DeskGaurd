@@ -183,7 +183,7 @@ export function LoginPage() {
 
           <button
             type="button"
-            onClick={() => signInAs("student@muj.manipal.edu", "1234567890")}
+            onClick={() => signInAs("student@muj.manipal.edu", "demo123")}
             disabled={loading}
             className="mt-4 flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-surface px-4 py-2.5 text-[14px] font-medium text-foreground shadow-xs transition-all hover:bg-muted hover:shadow-sm disabled:pointer-events-none disabled:opacity-50"
           >
@@ -196,10 +196,10 @@ export function LoginPage() {
             Sign in with Microsoft
           </button>
 
-          <p className="mt-5 text-center text-[13px] text-muted-foreground">
-            Use your university account ·{" "}
-            <span className="font-medium text-foreground">@muj.manipal.edu</span>
-          </p>
+          <div className="mt-5 rounded-lg border border-border bg-muted/50 px-3 py-2.5 text-center text-[12px] text-muted-foreground">
+            <p className="font-medium text-foreground">Demo credentials</p>
+            <p className="mt-0.5">student@muj.manipal.edu · <span className="font-mono">demo123</span></p>
+          </div>
         </>
       )}
     </AuthLayout>
